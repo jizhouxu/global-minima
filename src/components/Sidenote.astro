@@ -6,10 +6,9 @@
  *   import Sidenote from '../../components/Sidenote.astro';
  *   ...text... <Sidenote>This appears in the right gutter on wide screens.</Sidenote>
  *
- * On screens >= 1120px: floats into the right gutter via CSS float + negative margin.
+ * On screens >= 900px: floats right inside the shared content column.
  * On narrower screens: renders as an inline block note below the surrounding text.
  *
- * The .post-container must be wider than the prose column to give the float room.
  * See global.css for the sidenote positioning rules.
  */
 ---

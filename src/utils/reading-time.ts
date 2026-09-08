@@ -17,5 +17,24 @@ export function formatDate(date: Date): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   });
+}
+
+export function formatShortDate(date: Date): string {
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
+  });
+}
+
+/** Human-readable route segments; tag pages check for collisions at build time. */
+export function tagSlug(tag: string): string {
+  return tag.normalize('NFKC').toLowerCase()
+    .replaceAll('#', '-sharp').replaceAll('+', '-plus')
+    .replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')
+    || Array.from(tag, (char) => char.codePointAt(0)!.toString(16)).join('-');
+}
+
+export function tagPath(tag: string): string {
+  return `/tags/${encodeURIComponent(tagSlug(tag))}`;
 }

@@ -1,0 +1,25 @@
+---
+title: Markdown rendering fixture
+---
+
+# Markdown rendering
+
+Inline math: $a^2 + b^2 = c^2$.
+
+$$
+\int_0^1 x^2 \, dx = \frac{1}{3}
+$$
+
+~~obsolete~~
+
+| Feature | Status |
+| --- | --- |
+| Math | Working |
+
+- [x] Render checked tasks
+- [ ] Render unchecked tasks
+
+```typescript
+const answer: number = 42;
+console.log(answer);
+```

@@ -1,6 +1,7 @@
 ---
 import Layout from './Layout.astro';
-import { formatDate, readingTime } from '../utils/reading-time';
+import Newsletter from '../components/Newsletter.astro';
+import { formatDate, readingTime, tagPath } from '../utils/reading-time';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -31,7 +32,7 @@ const shareEmail    = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`;
   ogType="article"
   showProgress={true}
 >
-  <main class="post-container">
+  <main id="main-content" class="post-container" tabindex="-1">
     <article>
       <header class="post-header">
         <h1 class="post-title">{title}</h1>
@@ -50,7 +51,7 @@ const shareEmail    = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`;
               <span>·</span>
               <div class="post-tags">
                 {tags.map((tag) => (
-                  <a href={`${base}/tags/${tag}`} class="tag">{tag}</a>
+                  <a href={`${base}${tagPath(tag)}`} class="tag">{tag}</a>
                 ))}
               </div>
             </>
@@ -65,30 +66,7 @@ const shareEmail    = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`;
 
       <!-- Subscribe + Share -->
       <div class="post-subscribe-share">
-        <p class="post-subscribe-label">Communinet</p>
-        <p class="post-subscribe-body">Nerdy content straight to your inbox. Pure signal. Zero fluff.</p>
-        {/* Replace the action URL with your email provider's endpoint (e.g. Formspree, Buttondown, ConvertKit) */}
-        <form class="post-subscribe-form" action="#" method="POST">
-          <div class="post-subscribe-fields">
-            <input
-              class="post-subscribe-input"
-              type="text"
-              name="name"
-              placeholder="Your Name"
-              autocomplete="given-name"
-              required
-            />
-            <input
-              class="post-subscribe-input"
-              type="email"
-              name="email"
-              placeholder="Your Email"
-              autocomplete="email"
-              required
-            />
-            <button class="post-subscribe-btn" type="submit">Subscribe</button>
-          </div>
-        </form>
+        <Newsletter />
 
         <div class="post-share">
           <div class="post-share-left">

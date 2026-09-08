@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import { getSlug, readingTime } from '../utils/reading-time';
+import { getSlug, readingTime, formatShortDate, tagPath } from '../utils/reading-time';
 
 // Fetch all non-draft posts, newest first
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
@@ -15,8 +15,8 @@ type PostEntry = (typeof posts)[number];
 const grouped: Map<number, Map<number, PostEntry[]>> = new Map();
 
 for (const post of posts) {
-  const y = post.data.pubDate.getFullYear();
-  const m = post.data.pubDate.getMonth(); // 0-indexed
+  const y = post.data.pubDate.getUTCFullYear();
+  const m = post.data.pubDate.getUTCMonth(); // 0-indexed
   if (!grouped.has(y)) grouped.set(y, new Map());
   const yearMap = grouped.get(y)!;
   if (!yearMap.has(m)) yearMap.set(m, []);
@@ -30,13 +30,14 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-function shortDateFull(d: Date): string {
-  return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 ---
 
 <Layout title="Essays" description="All essays, grouped by year and month.">
-  <main class="page-container">
+  <main id="main-content" class="page-container" tabindex="-1">
+    <div class="page-heading-row">
+      <h1 class="page-heading">Essays</h1>
+      <span class="page-heading-count">{posts.length} {posts.length === 1 ? 'essay' : 'essays'}</span>
+    </div>
     {posts.length === 0 ? (
       <p style="color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.9rem;">
         No posts yet. Check back soon.
@@ -69,7 +70,7 @@ function shortDateFull(d: Date): string {
                             {post.data.tags.length > 0 && (
                               <div class="essays-tags">
                                 {post.data.tags.map((tag) => (
-                                  <a href={`${base}/tags/${tag}`} class="tag">
+                                  <a href={`${base}${tagPath(tag)}`} class="tag">
                                     {tag}
                                   </a>
                                 ))}
@@ -77,7 +78,7 @@ function shortDateFull(d: Date): string {
                             )}
                             <div class="essays-meta">
                               <time datetime={post.data.pubDate.toISOString()}>
-                                {shortDateFull(post.data.pubDate)}
+                                {formatShortDate(post.data.pubDate)}
                               </time>
                               {' · '}
                               {readingTime(post.body ?? '')} min read

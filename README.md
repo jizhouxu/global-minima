@@ -1,0 +1,78 @@
+# Global Minima
+
+Jizhou Xu's personal essays and technical writing. A static Astro site with a Dune-inspired light/dark theme, MDX, syntax-highlighted code, KaTeX mathematics and margin notes.
+
+## Local development
+
+Use Node **24** for local development. The supported minimum is Node **22.12**. Dependencies are managed with npm and `package-lock.json`.
+
+```sh
+npm ci
+npm run dev
+```
+
+Open http://localhost:4321. In Windows PowerShell, use `npm.cmd` if script execution policy blocks `npm.ps1`.
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Development server with live updates |
+| `npm run check` | Astro and TypeScript diagnostics |
+| `npm test` | Content-helper unit tests |
+| `npm run build` | Generate the static site in `dist/` |
+| `npm run test:site` | Validate the freshly built HTML and RSS |
+| `npm run test:rendering` | Build isolated Markdown/MDX rendering fixtures |
+| `npm run verify` | Run diagnostics, unit tests, build, site and rendering tests |
+| `npm run preview` | Serve the production build locally |
+| `npm audit` | Check dependencies for known vulnerabilities |
+
+GitHub Actions runs `npm ci` and `npm run verify` on Node 22.12 and 24 for pull requests and pushes to `main`. Browser review covers mobile and desktop layouts, light/dark themes, keyboard navigation and reduced motion; it is manual.
+
+## Structure
+
+- `src/pages/`: homepage, monthly essay archive, About, 404, article/tag routes and RSS.
+- `src/layouts/`: document shell and article layout.
+- `src/content/blog/`: Markdown and MDX essays, including nested folders.
+- `src/content.config.ts`: frontmatter schema and Astro Content Layer loader.
+- `src/components/`: sidenotes, newsletter and a static SVG landscape generated at build time.
+- `src/styles/global.css`: Tailwind v4, typography and theme tokens.
+- `src/utils/reading-time.ts`: reading estimates, UTC dates, slugs and tag paths.
+- `public/`: files copied directly into the build.
+- `tests/`: content-helper, generated-site and Markdown/MDX rendering checks.
+
+Astro 7 and MDX 8 generate static HTML with strict TypeScript checking. Tailwind uses its Vite plugin. The `unified()` processor from `@astrojs/markdown-remark` runs remark-math and rehype-katex for Markdown and MDX; Shiki supplies light and dark code themes. `compressHTML: true` preserves spaces between inline elements. The theme toggle is the only client JavaScript.
+
+Unit tests cover reading estimates, nested slugs, tag encoding and UTC dates across time zones. Generated-site tests check links, assets, fragments, page landmarks, RSS/canonical agreement, newsletter configuration and draft visibility. Rendering fixtures use the site's configuration to check KaTeX, GFM, Shiki, MDX sidenotes and inline spacing. Fixture output lives in `.tmp/rendering/`; production output lives in `dist/`.
+
+## Writing an essay
+
+Add a `.md` or `.mdx` file under `src/content/blog/`:
+
+```yaml
+---
+title: 'An essay title'
+description: 'A brief description for the index, feed and previews.'
+pubDate: 2026-09-08
+tags: ['software', 'writing']
+draft: true
+---
+```
+
+Set `draft: false` (or omit it) to publish. Drafts are excluded from pages, navigation, tag indexes and RSS, including in development. The file path determines `/blog/<slug>`; nested folders are supported. Optional `updatedDate` and `ogImage` fields add revision metadata and a social image. Dates render and group in UTC, independently of the build machine's time zone.
+
+Tag labels keep their display text and use readable URL slugs (`machine learning` → `machine-learning`, `C#` → `c-sharp`). Distinct labels that produce the same slug fail the build with a clear error.
+
+MDX supports `Sidenote.astro`; adjust its relative import for nested posts. Use `$...$` for inline math and `$$...$$` for display math. `hello-world.mdx` demonstrates code, math and sidenotes.
+
+## Email and RSS subscriptions
+
+The compact email signup form sends `name` and `email` by POST. Copy `.env.example` to `.env`, set `NEWSLETTER_ACTION` to your provider's **public HTTPS form action URL**, and build the site. Providers requiring different field names, hidden list IDs, spam protection or API authentication need a provider-specific integration in `src/components/Newsletter.astro`.
+
+The endpoint is visible in generated HTML and must not contain a private API key. Without an endpoint, the form displays a coming-soon message and disables its fields. `/rss.xml` is always available and needs no account or backend.
+
+## Deployment
+
+For static Vercel deployment, use `npm run build` as the build command, `dist/` as the output directory and a supported Node version. Deployment settings live in Vercel; GitHub Actions validates the repository.
+
+Set `SITE_URL` to the production origin in **Vercel's environment settings or your shell**. `astro.config.mjs` reads this variable directly from `process.env` (not `.env`), falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`, then uses `http://localhost:4321` locally. It controls canonical URLs, social metadata, RSS and sitemap links. Content URLs use no trailing slash.
+
+See [AGENTS.md](AGENTS.md) for development conventions and design constraints.

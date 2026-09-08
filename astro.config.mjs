@@ -2,13 +2,12 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
+import { unified } from '@astrojs/markdown-remark';
 import sitemap, { ChangeFreqEnum } from '@astrojs/sitemap';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
-// SITE_URL wins (set this in Vercel dashboard when a custom domain is ready).
-// VERCEL_PROJECT_PRODUCTION_URL is auto-injected by Vercel on every build.
-// Falls back to localhost for local dev.
+// Origin precedence: shell/deployment SITE_URL, Vercel production URL, localhost.
 const site =
   process.env.SITE_URL ??
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -20,11 +19,12 @@ export default defineConfig({
   site,
   trailingSlash: 'never',
 
-  // Default, but explicit for clarity
   output: 'static',
+  // Preserve spaces between inline elements.
+  compressHTML: true,
 
   integrations: [
-    // MDX inherits markdown plugins via extendMarkdownConfig: true (default)
+    // MDX inherits the shared unified processor and Shiki themes below.
     mdx(),
     sitemap({
       serialize(item) {
@@ -53,17 +53,17 @@ export default defineConfig({
   ],
 
   vite: {
-    // Tailwind v4 uses a Vite plugin instead of a PostCSS plugin.
-    // @ts-ignore — type conflict between Astro's bundled Vite and @tailwindcss/vite's Vite peer dep
+    // Tailwind v4 compiles through Vite.
     plugins: [tailwindcss()],
   },
 
   markdown: {
-    // These also apply to .mdx files via extendMarkdownConfig
-    remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
-    // Shiki dual-theme: emits CSS variables that swap via prefers-color-scheme.
-    // Keeps syntax colors matched to the background in both modes.
+    // Shared math processing for Markdown and MDX.
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex],
+    }),
+    // CSS selects Shiki's syntax colors for the active site theme.
     shikiConfig: {
       themes: {
         light: 'github-light',

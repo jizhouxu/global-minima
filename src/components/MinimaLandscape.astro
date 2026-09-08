@@ -1,0 +1,86 @@
+---
+// Sample and project a shallow valley at build time: no canvas or client script.
+function project(x: number, y: number): string {
+  const z = 0.32 * (x * x + y * y) + 0.12 * Math.sin(x * 2) * Math.sin(y * 2);
+  return `${(160 + (x - y) * 32).toFixed(1)},${(142 + (x + y) * 12 - z * 22).toFixed(1)}`;
+}
+
+const lines = Array.from({ length: 13 }, (_, index) => {
+  const fixed = -2.1 + index * 0.35;
+  return [false, true].map((transpose) =>
+    Array.from({ length: 33 }, (_, step) => {
+      const moving = -2.1 + step * 4.2 / 32;
+      return project(transpose ? moving : fixed, transpose ? fixed : moving);
+    }).join(' ')
+  );
+}).flat();
+---
+
+<div class="minima-landscape" aria-hidden="true">
+  <svg viewBox="0 0 320 200" width="320" height="200" fill="none" focusable="false">
+    <path d="M20 167H300 M160 18V182" class="guide" stroke-dasharray="2 5" />
+    <g class="terrain" stroke-linecap="round" stroke-linejoin="round">
+      {lines.map((points) => <polyline points={points} />)}
+    </g>
+    <circle cx="160" cy="142" r="8" class="marker-halo" />
+    <circle cx="160" cy="142" r="2.5" class="marker" />
+    <path d="M165 146L195 179H232" class="annotation" />
+    <text x="238" y="182">min.</text>
+    <path d="M20 18V27 M15.5 22.5H24.5 M295.5 167H304.5 M300 162.5V171.5" class="guide" />
+  </svg>
+</div>
+
+<style>
+  .minima-landscape {
+    width: 100%;
+    max-width: 340px;
+    justify-self: end;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .terrain {
+    stroke: var(--accent);
+    stroke-width: 0.65;
+    opacity: 0.5;
+  }
+
+  .guide {
+    stroke: var(--border);
+    stroke-width: 0.75;
+  }
+
+  .annotation {
+    stroke: var(--muted);
+    stroke-width: 0.6;
+  }
+
+  .marker-halo {
+    fill: var(--bg);
+    stroke: var(--accent);
+    stroke-width: 0.6;
+  }
+
+  .marker {
+    fill: var(--accent);
+  }
+
+  text {
+    fill: var(--muted);
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 600px) {
+    .minima-landscape {
+      max-width: 240px;
+      justify-self: center;
+    }
+  }
+</style>

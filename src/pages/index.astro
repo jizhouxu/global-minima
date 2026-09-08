@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import MinimaLandscape from '../components/MinimaLandscape.astro';
 import { getCollection } from 'astro:content';
-import { readingTime, getSlug } from '../utils/reading-time';
+import { readingTime, getSlug, formatShortDate, tagPath } from '../utils/reading-time';
 
 // Fetch all non-draft posts, newest first
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
@@ -10,13 +11,23 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-function shortDateFull(d: Date): string {
-  return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 ---
 
 <Layout title="Global Minima" description="Personal essays and technical writing.">
-  <main class="page-container">
+  <main id="main-content" class="page-container" tabindex="-1">
+    <header class="home-intro">
+      <div>
+        <p class="home-eyebrow">Essays & explorations</p>
+        <h1 class="home-title">Global Minima</h1>
+        <p class="home-description">Personal essays and technical writing on software, systems, and the ideas between them.</p>
+      </div>
+      <MinimaLandscape />
+    </header>
+    <section class="home-essays" aria-labelledby="recent-essays">
+      <div class="page-heading-row">
+        <h2 id="recent-essays" class="page-heading">Recent essays</h2>
+        <a class="archive-link" href={`${base}/essays`}>Explore the archive <span aria-hidden="true">↗</span></a>
+      </div>
     {posts.length === 0 ? (
       <p style="color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.9rem;">
         No posts yet. Check back soon.
@@ -26,27 +37,31 @@ function shortDateFull(d: Date): string {
         {posts.map((post) => (
           <li class="essays-item">
             <div class="essays-title-row">
-              <a class="essays-title" href={`${base}/blog/${getSlug(post.id)}`}>
-                {post.data.title}
-              </a>
+              <h3>
+                <a class="essays-title" href={`${base}/blog/${getSlug(post.id)}`}>
+                  {post.data.title}
+                </a>
+              </h3>
               {post.data.tags.length > 0 && (
                 <div class="essays-tags">
                   {post.data.tags.map((tag) => (
-                    <a href={`${base}/tags/${tag}`} class="tag">{tag}</a>
+                    <a href={`${base}${tagPath(tag)}`} class="tag">{tag}</a>
                   ))}
                 </div>
               )}
               <div class="essays-meta">
                 <time datetime={post.data.pubDate.toISOString()}>
-                  {shortDateFull(post.data.pubDate)}
+                  {formatShortDate(post.data.pubDate)}
                 </time>
                 {' · '}
                 {readingTime(post.body ?? '')} min read
               </div>
             </div>
+            <p class="essays-desc">{post.data.description}</p>
           </li>
         ))}
       </ol>
     )}
+    </section>
   </main>
 </Layout>

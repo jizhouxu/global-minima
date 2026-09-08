@@ -1,14 +1,22 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { getCollection } from 'astro:content';
+import { tagPath } from '../utils/reading-time';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const topics = ["software", "systems", "mathematics", "writing"];
+const publishedTags = new Set(
+  (await getCollection('blog', ({ data }) => !data.draft)).flatMap((post) => post.data.tags)
+);
 ---
 
 <Layout title="About" description="About this blog and its author.">
-  <main class="post-container">
+  <main id="main-content" class="post-container" tabindex="-1">
     <article>
+      <header class="post-header">
+        <h1 class="post-title">About</h1>
+      </header>
       <!-- Bio — .prose gives drop cap + Georgia serif reading experience -->
       <div class="prose">
         <p>
@@ -24,11 +32,11 @@ const topics = ["software", "systems", "mathematics", "writing"];
         <h2 class="about-section-heading">Disciplines</h2>
         <div class="about-tags">
           {
-            topics.map((t) => (
-              <a href={`${base}/tags/${t}`} class="tag">
+            topics.map((t) => publishedTags.has(t) ? (
+              <a href={`${base}${tagPath(t)}`} class="tag">
                 {t}
               </a>
-            ))
+            ) : <span class="tag">{t}</span>)
           }
         </div>
       </section>

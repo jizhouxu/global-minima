@@ -29,7 +29,7 @@ const siteName = "Global Minima";
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const pathname = Astro.url.pathname;
 const isAbout  = pathname === `${base}/about` || pathname === `${base}/about/`;
-const isEssays = pathname.startsWith(`${base}/essays`) || pathname.startsWith(`${base}/blog`);
+const isEssays = pathname.startsWith(`${base}/essays`) || pathname.startsWith(`${base}/blog`) || pathname.startsWith(`${base}/tags`);
 const resolvedOgImage = ogImage
   ? new URL(ogImage, Astro.site).toString()
   : undefined;
@@ -84,17 +84,22 @@ const resolvedOgImage = ogImage
     <!-- Set data-theme before first paint to prevent flash of wrong theme -->
     <script is:inline>
       (function () {
-        var t = localStorage.getItem("theme");
-        if (t === "dark" || t === "light")
-          document.documentElement.dataset.theme = t;
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "dark" || t === "light")
+            document.documentElement.dataset.theme = t;
+        } catch {
+          /* Storage may be disabled; the system theme still works. */
+        }
       })();
     </script>
   </head>
 
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     {showProgress && <div class="reading-progress" aria-hidden="true" />}
     <header class="site-header">
-      <nav class="site-nav">
+      <nav class="site-nav" aria-label="Main navigation">
         <a href={import.meta.env.BASE_URL || "/"} class="site-title"
           >{siteName}</a
         >
@@ -103,11 +108,12 @@ const resolvedOgImage = ogImage
         <button
           id="theme-toggle"
           class="theme-toggle"
+          type="button"
           aria-label="Switch theme"
         >
           <!--
-            Atreides eagle: shown in dark mode (Harkonnen) — click to return to House Atreides (light).
-            Harkonnen Black Sun of Giedi Prime: shown in light mode — click to enter Harkonnen darkness.
+            Atreides eagle: identifies light mode.
+            Harkonnen Black Sun of Giedi Prime: identifies dark mode.
             CSS crossfades between them based on data-theme / prefers-color-scheme.
           -->
           <svg
@@ -206,7 +212,11 @@ const resolvedOgImage = ogImage
         btn.addEventListener("click", function () {
           var next = current() === "dark" ? "light" : "dark";
           html.dataset.theme = next;
-          localStorage.setItem("theme", next);
+          try {
+            localStorage.setItem("theme", next);
+          } catch {
+            /* Apply the theme even when the preference cannot be saved. */
+          }
           sync();
         });
       })();

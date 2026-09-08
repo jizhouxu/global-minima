@@ -1,15 +1,16 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const blog = defineCollection({
-  // Astro 6 Content Layer API: glob loader replaces the legacy type: 'content'
+  // The Content Layer glob loader supplies entries and validates frontmatter.
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
-    pubDate: z.date(),
-    updatedDate: z.date().optional(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
     description: z.string(),
-    tags: z.array(z.string()).default([]),
+    tags: z.array(z.string().trim().min(1)).default([]),
     draft: z.boolean().default(false),
     ogImage: z.string().optional(),
   }),

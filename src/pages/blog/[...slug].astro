@@ -23,7 +23,7 @@ export async function getStaticPaths() {
 }
 
 const { post, prev, next } = Astro.props;
-// Astro 6: use render() from astro:content instead of post.render()
+// Content Layer entries (including nested folders) render at their full id path.
 const { Content } = await render(post);
 ---
 

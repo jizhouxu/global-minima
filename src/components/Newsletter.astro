@@ -1,0 +1,27 @@
+---
+const action = import.meta.env.NEWSLETTER_ACTION?.trim();
+if (action && new URL(action).protocol !== 'https:') {
+  throw new Error('NEWSLETTER_ACTION must be a public HTTPS subscription form URL.');
+}
+
+// Do not emit a submitting form until a provider is configured.
+const Container = action ? 'form' : 'div';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<p class="post-subscribe-label">Communinet</p>
+<p class="post-subscribe-body">Nerdy content straight to your inbox. Pure signal. Zero fluff.</p>
+<Container class="post-subscribe-form" action={action || undefined} method={action ? 'POST' : undefined}>
+  <fieldset class="post-subscribe-fields" disabled={!action} aria-describedby="newsletter-status">
+    <legend class="sr-only">Subscribe to new essays by email</legend>
+    <label class="sr-only" for="newsletter-name">Your name</label>
+    <input id="newsletter-name" class="post-subscribe-input" type="text" name="name" placeholder="Your Name" autocomplete="given-name" required />
+    <label class="sr-only" for="newsletter-email">Your email</label>
+    <input id="newsletter-email" class="post-subscribe-input" type="email" name="email" placeholder="Your Email" autocomplete="email" required />
+    <button class="post-subscribe-btn" type="submit">Subscribe</button>
+  </fieldset>
+</Container>
+<p id="newsletter-status" class="post-subscribe-status">
+  {action ? 'Prefer a feed reader? ' : 'Email subscriptions are coming soon. '}
+  <a href={`${base}/rss.xml`}>Follow via RSS<span aria-hidden="true"> ↗</span></a>
+</p>
