@@ -1,6 +1,6 @@
 # Global Minima
 
-Jizhou Xu's personal essays and technical writing. A static Astro site with a Dune-inspired light/dark theme, MDX, syntax-highlighted code, KaTeX mathematics and margin notes.
+Personal essays and technical writing. A static Astro site with a Dune-inspired light/dark theme, MDX, syntax-highlighted code, KaTeX mathematics and margin notes.
 
 ## Local development
 
@@ -44,6 +44,8 @@ Astro 7 and MDX 8 generate static HTML with strict TypeScript checking. Tailwind
 Unit tests cover reading estimates, nested slugs, tag encoding and UTC dates across time zones. Generated-site tests check links, assets, fragments, page landmarks, RSS/canonical agreement, newsletter configuration and draft visibility. Rendering fixtures use the site's configuration to check KaTeX, GFM, Shiki, MDX sidenotes and inline spacing. Fixture output lives in `.tmp/rendering/`; production output lives in `dist/`.
 
 ## Writing an essay
+
+Start with [Personality and Writing Style.md](<Personality and Writing Style.md>), the shared protocol for essays, documentation, and writing with AI. It covers author ownership, voice, techniques distilled from six craft books, research, and revision. The author supplies the core views and direction; AI helps develop and test their expression. Update the protocol when an author-approved edit reveals a useful recurring preference.
 
 Add a `.md` or `.mdx` file under `src/content/blog/`:
 
