@@ -1,74 +1,144 @@
 ---
-title: 'On Writing Technically'
+title: 'How I Write with AI'
 pubDate: 2026-04-05
-description: 'Why precision and clarity are not opposites, and how to write technical content that respects the reader.'
-tags: ['writing', 'craft']
+updatedDate: 2026-09-09
+description: 'A practical process for writing with AI: set the direction, build the argument, challenge the draft, and take responsibility for the result.'
+tags: ['writing', 'craft', 'ai']
 draft: false
 ---
 
-import Sidenote from '../../components/Sidenote.astro';
+A useful writing brief tells my AI collaborator what I am trying to say, who I
+want to reach, and where I am uncertain. That gives us something to work on
+together. “Make this better” leaves too many of the important choices
+unspecified.
 
-There is a widespread belief that technical writing must be dry — that rigour
-demands dullness. This belief is wrong, and acting on it produces prose that
-obscures more than it reveals.
+The working arrangement for this site is straightforward. The core views and
+direction are mine. AI can help with research, structure, arguments, drafts,
+and editing. It can propose a different conclusion and explain why. I decide
+whether that conclusion becomes mine, and I am responsible for the work I
+publish.
 
-## The clarity paradox
+The process below is how I want that arrangement to operate. It applies to an
+essay, a technical explanation, or a short note. The amount of process should
+fit the task.
 
-<Sidenote>
-  Richard Feynman was famous for demanding plain-language explanations. If you
-  couldn't explain something simply, he argued, you didn't understand it yet.
-</Sidenote>
+First, give the piece a brief.
 
-Precision and clarity are not in tension. A sentence that says exactly what it
-means — no more, no less — is both more rigorous and easier to read than one
-hedged with qualifications and passive constructions.
+For a substantial essay, I want a few lines that identify the reader, my
+central point, the material supporting it, and what I hope the reader will
+understand afterward. If I am exploring a question, the brief should say so.
+A provisional idea deserves room to develop.
 
-The impulse toward complexity often comes from insecurity. We use jargon to
-signal membership in a community, and passive voice to avoid accountability.
-Neither serves the reader.
+For example, a brief for this piece could read:
 
-## What the reader actually needs
+> Write for a thoughtful reader who is curious about using AI but worried about
+> losing ownership of the work. Explain a process they can try. My core view is
+> that I own the direction and published claims, while AI can help develop and
+> test their expression. Use illustrative examples and do not invent personal
+> experiences or measured improvements.
 
-A reader approaching a technical document has one goal: to build a correct
-mental model of something they did not previously understand. Every sentence
-either advances that goal or wastes their time.
+This is enough direction to begin. An assistant can infer ordinary choices
+about length and structure from the assignment. It should surface a missing
+decision when that decision would materially change the argument.
 
-Concretely, this means:
+Next, separate what we believe from what we can support.
 
-1. **Start with the conclusion.** The reader should know what they are about to
-   learn before they learn it. Front-load the key insight.
+A draft can contain an observation, an inference, a preference, and a prediction
+in the same paragraph. They need different treatment. A preference can be stated
+as mine. An outside factual claim needs evidence. An inference needs a visible
+connection to that evidence. A prediction needs the assumptions that could make
+it fail.
 
-2. **Use examples early.** Abstract definitions without examples are
-   memorisable but not understandable. The example is the thing; the definition
-   is just a compact reference.
+For research, I want a source attached to the particular claim it supports. We
+should open it, check the relevant passage, and preserve its limits. A search
+result or a model's remembered quotation gives us somewhere to look. It does
+not complete the check.
 
-3. **Define terms once, then use them consistently.** Synonyms in technical
-   writing create ambiguity. If you call it a "context" on page one, call it a
-   "context" on page ten.
+Consider an illustrative claim: “AI makes writing faster.” Before treating
+that as a general result, we would need evidence about the task, the writers,
+and what counted as finished. For this essay, my actual point is narrower:
+I want AI to help me improve a draft, and I will judge the help by what survives
+careful revision. There is no need to decorate that intention with a performance
+claim.
 
-## On mathematics
+Then make something we can examine.
 
-Mathematical notation is the most efficient language humans have invented for
-a certain class of ideas. But it requires translation.
+When the argument is clear, an outline can establish the order. When it is
+still forming, one useful paragraph may be the right place to start. I can
+supply notes, a question, or rough prose; AI can draft from that material.
+The instruction should make clear which parts are settled and which remain
+open.
 
-A formula like $\nabla \cdot \mathbf{E} = \frac{\rho}{\varepsilon_0}$ is not
-self-explanatory to someone who has not internalised the notation. The writer's
-job is to bridge the formal and the intuitive:
+I do not need every sentence to sound finished at this stage. I need enough
+substance to see where the argument goes. A working draft may contain an
+explicit note that a claim needs verification. That note must be resolved
+before publication.
 
-> This says that electric field lines can only start or end on charges. Where
-> there is no charge, field lines flow through without diverging.
+Once there is a draft, the most useful next request is often a challenge:
 
-The mathematical statement and the prose statement are the same idea in two
-registers. Use both.
+> Restate my central claim. Find the strongest relevant objection, the weakest
+> inference, and any step a reader would have to supply. Explain what evidence
+> or narrower wording would help. Keep proposed changes to my position separate
+> from edits that clarify it.
 
-## The discipline
+For an essay about AI and authorship, a serious objection is that a writer could
+approve fluent prose without understanding it. The protocol needs an answer to
+that concern. Reading the final draft is necessary; being able to explain the
+argument and its support is a stronger test of ownership.
 
-Writing clearly about technical subjects is harder than writing obscurely. It
-requires you to understand something well enough to explain it without
-scaffolding — without the jargon that substitutes for understanding.
+I want AI to press on that gap. Agreement alone would give me little reason to
+trust the collaboration.
 
-That difficulty is the point. The act of writing clearly *is* the act of
-thinking clearly. A confused sentence usually indicates a confused thought.
-Fixing the sentence often fixes the thought.
+After the argument holds together, inspect its order.
 
-Write for the reader who is as smart as you but does not yet know what you know.
+Ask the assistant to label each paragraph's job in a few words. Read those
+labels in sequence. They reveal whether an example arrives before the idea it
+illuminates, whether an objection is answered, and whether several paragraphs
+repeat the same point. Move or cut a section before spending time perfecting
+its sentences.
+
+The reader's needs determine the sequence. Instructions should get them to the
+next action. A technical explanation should introduce the necessary terms and
+show an example before adding complexity. An exploratory essay can take a
+longer route if the reader understands what question makes the journey
+worthwhile.
+
+Only then spend sustained attention on the language.
+
+I want proposed edits to show their effect on meaning. Here is a small example,
+written for illustration:
+
+> Original: “AI can help clarify an argument when the writer has enough
+> understanding to evaluate the revision.”
+>
+> Careless cut: “AI clarifies arguments.”
+>
+> Better cut: “AI can clarify an argument if the writer can judge the revision.”
+
+The shortest version changes the claim. It removes both the uncertainty and
+the condition. A useful editor can explain why the slightly longer sentence
+deserves its space.
+
+This pass also checks rhythm and voice. Short sentences can give a difficult
+idea room. A longer sentence can show how its parts belong together. I want
+specific observations and words I would use in conversation with an interested
+reader. Personal texture has to come from material I actually supply.
+
+Finally, read the piece as something another person will encounter.
+
+The title makes a promise. The opening should establish it, the body should
+develop it, and the ending should finish the work. Check the factual claims,
+quotations, links, and any technical examples on which the explanation depends.
+Remove unresolved notes. Revisit any sentence that acquired more certainty
+during editing than the evidence supports.
+
+My final questions are practical: Can I explain this? Do I mean it? Does the
+reader have what they need? Where AI materially helped, I can describe that
+help plainly. Its involvement does not relieve me of those questions.
+
+The
+<a href={import.meta.env.BASE_URL.replace(/\/$/, '') + '/blog/how-we-built-our-writing-protocol'}>companion essay on developing our writing protocol</a>
+explains the craft sources behind this process. Here, the useful next step is
+small: choose a paragraph, tell the AI what it needs to accomplish, and ask
+where it falls short. Consider the answer. Keep the change that makes the
+thought clearer and remains true to what you mean.
