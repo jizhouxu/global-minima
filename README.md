@@ -62,7 +62,7 @@ draft: true
 
 Set `draft: false` (or omit it) to publish. Drafts are excluded from pages, navigation, tag indexes and RSS, including in development. The file path determines `/blog/<slug>`; nested folders are supported. Optional `updatedDate` and `ogImage` fields add revision metadata and a social image. Dates render and group in UTC, independently of the build machine's time zone.
 
-Name essay files after their titles. Indexes and RSS order posts by newest publication timestamp, breaking ties by ascending content ID. This keeps same-date essays in a consistent order without artificial publication times. Adjacent-post links use the reverse order for older/newer navigation.
+Name essay files after their titles. Indexes and RSS order posts by newest publication timestamp, breaking ties by ascending content ID. When essays share a calendar date and their publication sequence matters, include explicit UTC times in `pubDate`. The earlier essay appears lower in these newest-first lists and links forward to the later essay through Next; both display the same date.
 
 Tag labels keep their display text and use readable URL slugs (`machine learning` → `machine-learning`, `C#` → `c-sharp`). Distinct labels that produce the same slug fail the build with a clear error.
 
