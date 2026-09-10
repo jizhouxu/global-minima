@@ -66,7 +66,7 @@ Name essay files after their titles. Indexes and RSS order posts by newest publi
 
 Tag labels keep their display text and use readable URL slugs (`machine learning` → `machine-learning`, `C#` → `c-sharp`). Distinct labels that produce the same slug fail the build with a clear error.
 
-MDX supports `Sidenote.astro`; adjust its relative import for nested posts. Use `$...$` for inline math and `$$...$$` for display math. `hello-world.mdx` demonstrates code, math and sidenotes.
+MDX supports `Sidenote.astro`; adjust its relative import for nested posts. Use `$...$` for inline math and `$$...$$` for display math. The [MDX fixture](tests/fixtures/rendering/src/pages/mdx.mdx) demonstrates code, math and sidenotes; the [Markdown fixture](tests/fixtures/rendering/src/pages/markdown.md) covers code and math.
 
 ## Email and RSS subscriptions
 
@@ -78,7 +78,7 @@ The endpoint is visible in generated HTML and must not contain a private API key
 
 For static Vercel deployment, use `npm run build` as the build command, `dist/` as the output directory and a supported Node version. Deployment settings live in Vercel; GitHub Actions validates the repository.
 
-`vercel.json` preserves the former writing-essay URLs with permanent redirects to `/blog/le-mot-juste`. These redirects run on Vercel; local Astro preview serves the current routes. Update this file when renaming or merging a published essay.
+`vercel.json` preserves former essay URLs with permanent redirects, including `/blog/hello-world` to `/blog/inception` and the former writing-essay URLs to `/blog/le-mot-juste`. These redirects run on Vercel; local Astro preview serves the current routes. Update this file when renaming or merging a published essay.
 
 Set `SITE_URL` to the production origin in **Vercel's environment settings or your shell**. `astro.config.mjs` reads this variable directly from `process.env` (not `.env`), falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`, then uses `http://localhost:4321` locally. It controls canonical URLs, social metadata, RSS and sitemap links. Content URLs use no trailing slash.
 

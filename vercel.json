@@ -2,6 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/blog/hello-world",
+      "destination": "/blog/inception",
+      "permanent": true
+    },
+    {
       "source": "/blog/how-we-built-our-writing-protocol",
       "destination": "/blog/le-mot-juste",
       "permanent": true
