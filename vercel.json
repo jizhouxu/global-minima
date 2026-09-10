@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/blog/how-we-built-our-writing-protocol",
+      "destination": "/blog/le-mot-juste",
+      "permanent": true
+    },
+    {
+      "source": "/blog/on-writing-technically",
+      "destination": "/blog/le-mot-juste",
+      "permanent": true
+    }
+  ]
+}
