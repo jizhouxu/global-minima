@@ -1,12 +1,12 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { getSlug } from '../../utils/reading-time';
+import { getSlug, comparePostsNewestFirst } from '../../utils/reading-time';
 
 export async function getStaticPaths() {
   const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
-    (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
-  );
+    comparePostsNewestFirst
+  ).reverse();
 
   return posts.map((post, index) => ({
     params: { slug: getSlug(post.id) },

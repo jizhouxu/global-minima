@@ -61,6 +61,41 @@ test('RSS entries resolve to articles and agree with their canonical URLs', () =
   }
 });
 
+test('RSS, article indexes, and adjacent-post links use a consistent publication order', () => {
+  const rss = readFileSync(resolve(root, 'rss.xml'), 'utf8');
+  const entries = [...rss.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(([, item]) => ({
+    pathname: decodeURIComponent(new URL(decode(item.match(/<link>(.*?)<\/link>/)[1])).pathname),
+    date: Date.parse(item.match(/<pubDate>(.*?)<\/pubDate>/)[1]),
+  }));
+  const paths = entries.map(entry => entry.pathname);
+  for (let index = 1; index < entries.length; index++) {
+    const previous = entries[index - 1];
+    const current = entries[index];
+    assert.ok(previous.date >= current.date, `RSS dates out of order: ${current.pathname}`);
+    if (previous.date === current.date) {
+      assert.ok(previous.pathname < current.pathname, `RSS same-date IDs out of order: ${current.pathname}`);
+    }
+  }
+
+  const linkPath = (href, html) => decodeURIComponent(new URL(decode(href), decode(canonical(html))).pathname);
+  for (const {file, html} of pages) {
+    const listed = [...html.matchAll(/<a\b[^>]*class="essays-title"[^>]*href="([^"]+)"/g)]
+      .map(([, href]) => linkPath(href, html));
+    if (!listed.length) continue;
+    const expected = file.startsWith(`tags${sep}`) ? paths.filter(path => listed.includes(path)) : paths;
+    assert.deepEqual(listed, expected, `Article index differs from RSS: ${file}`);
+  }
+
+  for (const [index, pathname] of paths.entries()) {
+    const html = readFileSync(findOutput(pathname), 'utf8');
+    const navigation = html.match(/<nav\b[^>]*aria-label="Post navigation"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? '';
+    const links = [...navigation.matchAll(/<a\b[^>]*href="([^"]+)"/g)]
+      .map(([, href]) => linkPath(href, html));
+    // Previous points to the older entry; Next points to the newer entry.
+    assert.deepEqual(links, [paths[index + 1], paths[index - 1]].filter(Boolean), `Post navigation: ${pathname}`);
+  }
+});
+
 test('email signup cannot submit to an unconfigured placeholder', () => {
   for (const {file, html} of pages.filter(({file}) => file.startsWith(`blog${sep}`))) {
     assert.doesNotMatch(html, /<form\b[^>]*action="#"/, file);

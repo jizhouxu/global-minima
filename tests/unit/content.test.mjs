@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { test } from 'node:test';
-import { readingTime, getSlug, formatDate, formatShortDate, tagPath, tagSlug } from '../../src/utils/reading-time.ts';
+import { readingTime, getSlug, formatDate, formatShortDate, tagPath, tagSlug, comparePostsNewestFirst } from '../../src/utils/reading-time.ts';
 
 test('reading time keeps a one-minute minimum and estimates longer essays', () => {
   assert.equal(readingTime(''), 1);
@@ -14,6 +14,34 @@ test('content IDs preserve nested paths and remove only markdown extensions', ()
   assert.equal(getSlug('first.md'), 'first');
   assert.equal(getSlug('already-a-slug'), 'already-a-slug');
   assert.equal(getSlug('notes.md/example'), 'notes.md/example');
+});
+
+const post = (id, date = '2026-09-09T00:00:00Z') => ({ id, data: { pubDate: new Date(date) } });
+
+test('same-date posts have the same ID order regardless of collection order', () => {
+  const expected = ['in-search-of-the-right-word', 'le-mot-juste', 'notes/a'];
+  for (const ids of [
+    ['notes/a', 'in-search-of-the-right-word', 'le-mot-juste'],
+    ['le-mot-juste', 'notes/a', 'in-search-of-the-right-word'],
+    ['le-mot-juste', 'in-search-of-the-right-word', 'notes/a'],
+  ]) {
+    assert.deepEqual(ids.map(id => post(id)).sort(comparePostsNewestFirst).map(entry => entry.id), expected);
+  }
+});
+
+test('publication date takes precedence over the content ID', () => {
+  const posts = [
+    post('a-oldest', '2026-09-08T00:00:00Z'),
+    post('b-middle'),
+    post('z-newest', '2026-09-10T00:00:00Z'),
+  ];
+  assert.deepEqual(posts.sort(comparePostsNewestFirst).map(entry => entry.id), ['z-newest', 'b-middle', 'a-oldest']);
+});
+
+test('post comparison returns equality for the same ID and publication instant', () => {
+  const entry = post('same');
+  assert.equal(comparePostsNewestFirst(entry, entry), 0);
+  assert.equal(comparePostsNewestFirst(entry, post('same', '2026-09-09T08:00:00+08:00')), 0);
 });
 
 test('tag labels produce usable single-segment routes', () => {

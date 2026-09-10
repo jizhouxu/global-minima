@@ -12,6 +12,15 @@ export function getSlug(id: string): string {
   return id.replace(/\.(mdx?)$/, '');
 }
 
+type DatedPost = { id: string; data: { pubDate: Date } };
+
+/** Newest publication first, with a consistent content-ID order for equal dates. */
+export function comparePostsNewestFirst(a: DatedPost, b: DatedPost): number {
+  const dateOrder = b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+  if (dateOrder !== 0) return dateOrder;
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
 export function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
