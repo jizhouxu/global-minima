@@ -10,15 +10,16 @@ const posts = (await getCollection('writing')).sort(
 );
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const description = 'Ideas and views on science, technology, markets, and occasionally life reflections and random topics. An outsider stepping into the frame, with more than one future in mind.';
 
 ---
 
-<Layout title="Global Minima" description="Personal essays and technical writing.">
+<Layout title="Global Minima" description={description}>
   <main id="main-content" class="page-container" tabindex="-1">
     <header class="home-intro">
       <div>
-        <h1 class="home-title">Ideas tested in public</h1>
-        <p class="home-description">Essays on science, technology, and markets. What holds up to scrutiny, what is worth building, and where the two meet.</p>
+        <h1 class="home-title">Out of Sample</h1>
+        <p class="home-description">{description}</p>
       </div>
       <MinimaLandscape />
     </header>
