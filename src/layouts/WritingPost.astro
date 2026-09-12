@@ -5,13 +5,13 @@ import { formatDate, readingTime, tagPath } from '../utils/reading-time';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
-  post: CollectionEntry<'blog'>;
+  post: CollectionEntry<'writing'>;
   prev?: { slug: string; title: string } | null;
   next?: { slug: string; title: string } | null;
 }
 
 const { post, prev, next } = Astro.props;
-const { title, description, pubDate, updatedDate, tags, ogImage } = post.data;
+const { title, description, pubDate, tags, ogImage } = post.data;
 const mins = readingTime(post.body ?? '');
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -36,16 +36,11 @@ const shareEmail    = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`;
     <article>
       <header class="post-header">
         <h1 class="post-title">{title}</h1>
+        <p class="post-summary">{description}</p>
         <div class="post-meta">
           <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
           <span>·</span>
           <span>{mins} min read</span>
-          {updatedDate && (
-            <>
-              <span>·</span>
-              <span>Updated {formatDate(updatedDate)}</span>
-            </>
-          )}
           {tags.length > 0 && (
             <>
               <span>·</span>
@@ -70,7 +65,7 @@ const shareEmail    = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`;
 
         <div class="post-share">
           <div class="post-share-left">
-            <p class="post-subscribe-label">Shigawire</p>
+            <p class="post-subscribe-label">Share</p>
             <div class="post-share-buttons">
               <!-- LinkedIn -->
               <a href={shareLinkedIn} class="share-btn" target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">
@@ -105,13 +100,13 @@ const shareEmail    = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`;
       {(prev || next) && (
         <nav class="post-nav" aria-label="Post navigation">
           {prev ? (
-            <a href={`${base}/blog/${prev.slug}`}>
+            <a href={`${base}/writing/${prev.slug}`}>
               <span class="nav-label">← Previous</span>
               <span class="nav-title">{prev.title}</span>
             </a>
           ) : <span />}
           {next && (
-            <a href={`${base}/blog/${next.slug}`} class="post-nav-next">
+            <a href={`${base}/writing/${next.slug}`} class="post-nav-next">
               <span class="nav-label">Next →</span>
               <span class="nav-title">{next.title}</span>
             </a>

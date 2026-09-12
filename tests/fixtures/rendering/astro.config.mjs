@@ -7,6 +7,7 @@ import siteConfig from '../../../astro.config.mjs';
 /** @type {typeof siteConfig} */
 const fixtureConfig = {
   ...siteConfig,
+  base: '/fixture',
   srcDir: fileURLToPath(new URL('./src/', import.meta.url)),
   publicDir: fileURLToPath(new URL('./public/', import.meta.url)),
   outDir: fileURLToPath(new URL('../../../.tmp/rendering/dist/', import.meta.url)),

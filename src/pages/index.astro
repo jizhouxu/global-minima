@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import MinimaLandscape from '../components/MinimaLandscape.astro';
+import EssayListItem from '../components/EssayListItem.astro';
 import { getCollection } from 'astro:content';
-import { readingTime, getSlug, formatShortDate, tagPath, comparePostsNewestFirst } from '../utils/reading-time';
+import { comparePostsNewestFirst } from '../utils/reading-time';
 
-// Fetch all non-draft posts, newest first
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+const posts = (await getCollection('writing')).sort(
   comparePostsNewestFirst
 );
 
@@ -17,16 +17,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <main id="main-content" class="page-container" tabindex="-1">
     <header class="home-intro">
       <div>
-        <p class="home-eyebrow">Essays & explorations</p>
-        <h1 class="home-title">Global Minima</h1>
-        <p class="home-description">Personal essays and technical writing on software, systems, and the ideas between them.</p>
+        <h1 class="home-title">Ideas tested in public</h1>
+        <p class="home-description">Essays on science, technology, and markets. What holds up to scrutiny, what is worth building, and where the two meet.</p>
       </div>
       <MinimaLandscape />
     </header>
     <section class="home-essays" aria-labelledby="recent-essays">
       <div class="page-heading-row">
-        <h2 id="recent-essays" class="page-heading">Recent essays</h2>
-        <a class="archive-link" href={`${base}/essays`}>Explore the archive <span aria-hidden="true">↗</span></a>
+        <h2 id="recent-essays" class="page-heading">Recent</h2>
+        <a class="archive-link" href={`${base}/writing`}>All <span aria-hidden="true">↗</span></a>
       </div>
     {posts.length === 0 ? (
       <p style="color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.9rem;">
@@ -34,32 +33,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </p>
     ) : (
       <ol class="essays-list">
-        {posts.map((post) => (
-          <li class="essays-item">
-            <div class="essays-title-row">
-              <h3>
-                <a class="essays-title" href={`${base}/blog/${getSlug(post.id)}`}>
-                  {post.data.title}
-                </a>
-              </h3>
-              {post.data.tags.length > 0 && (
-                <div class="essays-tags">
-                  {post.data.tags.map((tag) => (
-                    <a href={`${base}${tagPath(tag)}`} class="tag">{tag}</a>
-                  ))}
-                </div>
-              )}
-              <div class="essays-meta">
-                <time datetime={post.data.pubDate.toISOString()}>
-                  {formatShortDate(post.data.pubDate)}
-                </time>
-                {' · '}
-                {readingTime(post.body ?? '')} min read
-              </div>
-            </div>
-            <p class="essays-desc">{post.data.description}</p>
-          </li>
-        ))}
+        {posts.map((post) => <EssayListItem post={post} />)}
       </ol>
     )}
     </section>

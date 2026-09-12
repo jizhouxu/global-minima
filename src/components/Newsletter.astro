@@ -9,8 +9,8 @@ const Container = action ? 'form' : 'div';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<p class="post-subscribe-label">Communinet</p>
-<p class="post-subscribe-body">Nerdy content straight to your inbox. Pure signal. Zero fluff.</p>
+<p class="post-subscribe-label">Subscribe</p>
+<p class="post-subscribe-body">New essays, delivered by email.</p>
 <Container class="post-subscribe-form" action={action || undefined} method={action ? 'POST' : undefined}>
   <fieldset class="post-subscribe-fields" disabled={!action} aria-describedby="newsletter-status">
     <legend class="sr-only">Subscribe to new essays by email</legend>

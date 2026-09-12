@@ -1,0 +1,105 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import EssayListItem from './EssayListItem.astro';
+import { tagPath, comparePostsNewestFirst } from '../utils/reading-time';
+
+interface Props {
+  allPosts: CollectionEntry<'writing'>[];
+  activeTag?: string;
+}
+
+const { allPosts, activeTag } = Astro.props;
+const posts = allPosts
+  .filter((post) => !activeTag || post.data.tags.includes(activeTag))
+  .sort(comparePostsNewestFirst);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const tagCounts = new Map<string, number>();
+for (const post of allPosts) {
+  for (const tag of new Set(post.data.tags)) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts].sort(([a], [b]) => a.localeCompare(b, 'en'));
+const countLabel = (count: number) => `${count} ${count === 1 ? 'post' : 'posts'}`;
+
+// The sorted posts retain publication order within each UTC year and month.
+const grouped = new Map<number, Map<number, typeof posts>>();
+for (const post of posts) {
+  const year = post.data.pubDate.getUTCFullYear();
+  const month = post.data.pubDate.getUTCMonth();
+  if (!grouped.has(year)) grouped.set(year, new Map());
+  const months = grouped.get(year)!;
+  if (!months.has(month)) months.set(month, []);
+  months.get(month)!.push(post);
+}
+
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+---
+
+<h1 class="sr-only">{activeTag ? `${activeTag} posts` : 'Writing'}</h1>
+
+<blockquote class="writing-quote writing-quote-opening">
+  <p>Knowledge is the beginning of action. Action is the completion of knowledge.</p>
+</blockquote>
+
+<div class="writing-toolbar">
+<nav class="tag-filters" aria-label="Filter posts by tag">
+  <ul>
+    <li>
+      <a
+        class="tag-filter"
+        href={`${base}/writing`}
+        aria-current={activeTag === undefined ? 'page' : undefined}
+        aria-label={`All posts: ${countLabel(allPosts.length)}`}
+      >
+        All
+      </a>
+    </li>
+    {tags.map(([tag, count]) => (
+      <li>
+        <a
+          class="tag-filter"
+          href={`${base}${tagPath(tag)}`}
+          aria-current={activeTag === tag ? 'page' : undefined}
+          aria-label={`${tag}: ${countLabel(count)}`}
+        >
+          {tag}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+<p class="writing-post-count">{activeTag ? `${posts.length} of ${countLabel(allPosts.length)}` : countLabel(allPosts.length)}</p>
+</div>
+
+<section class="writing-posts" aria-label="Posts">
+  {posts.length === 0 ? (
+    <p class="writing-empty">No posts yet. Check back soon.</p>
+  ) : (
+    <div class="essays-archive">
+      {[...grouped].map(([year, months]) => (
+        <section class="year-section">
+          <h2 class="year-heading">
+            {year}<sup class="essays-count">{[...months.values()].reduce((count, entries) => count + entries.length, 0)}</sup>
+          </h2>
+          {[...months].map(([month, monthPosts]) => (
+            <div class="month-section">
+              <h3 class="month-heading">{monthNames[month]}<sup class="essays-count">{monthPosts.length}</sup></h3>
+              <ol class="essays-list">
+                {monthPosts.map((post) => <EssayListItem post={post} heading="h4" />)}
+              </ol>
+            </div>
+          ))}
+        </section>
+      ))}
+    </div>
+  )}
+</section>
+
+<blockquote class="writing-quote writing-quote-closing">
+  <p>This heart is luminous — what more is there to say?</p>
+</blockquote>

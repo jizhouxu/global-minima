@@ -1,0 +1,22 @@
+---
+import Layout from '../../../../../src/layouts/Layout.astro';
+
+export function getStaticPaths() {
+  return [
+    { name: 'relative', image: 'images/card.png' },
+    { name: 'root-relative', image: '/images/card.png' },
+    { name: 'external', image: 'https://images.example.test/card.png' },
+    { name: 'scheme-relative', image: '//images.example.test/card.png' },
+    { name: 'absent', image: undefined },
+  ].map(({ name, image }) => ({
+    params: { metadata: `metadata-${name}` },
+    props: { image },
+  }));
+}
+---
+
+<Layout title="Metadata fixture" ogImage={Astro.props.image}>
+  <main id="main-content" tabindex="-1">
+    <h1>Metadata fixture</h1>
+  </main>
+</Layout>

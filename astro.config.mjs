@@ -37,10 +37,10 @@ export default defineConfig({
           item.priority = 1.0;
           item.changefreq = ChangeFreqEnum.DAILY;
           item.lastmod = new Date().toISOString();
-        } else if (url.endsWith('/about') || url.endsWith('/essays')) {
+        } else if (url.endsWith('/about') || url.endsWith('/writing')) {
           item.priority = 0.9;
           item.changefreq = ChangeFreqEnum.WEEKLY;
-        } else if (url.includes('/blog/')) {
+        } else if (url.includes('/writing/')) {
           item.priority = 0.7;
           item.changefreq = ChangeFreqEnum.MONTHLY;
         } else if (url.includes('/tags/')) {

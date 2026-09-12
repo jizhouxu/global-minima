@@ -5,58 +5,119 @@ import { tagPath } from '../utils/reading-time';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const topics = ["software", "systems", "mathematics", "writing"];
-const publishedTags = new Set(
-  (await getCollection('blog', ({ data }) => !data.draft)).flatMap((post) => post.data.tags)
-);
+const topics = [...new Set(
+  (await getCollection('writing')).flatMap((post) => post.data.tags)
+)].sort((a, b) => a.localeCompare(b, 'en'));
 ---
 
-<Layout title="About" description="About this blog and its author.">
+<Layout title="About" description="From optimization to open-ended discovery: why Global Minima, and an invitation to think and build with Jizhou Xu.">
   <main id="main-content" class="post-container" tabindex="-1">
     <article>
-      <header class="post-header">
-        <h1 class="post-title">About</h1>
-      </header>
-      <!-- Bio — .prose gives drop cap + Georgia serif reading experience -->
-      <div class="prose">
-        <p>
-          The world might just be a playground simulator, so why not have fun?
-        </p>
-        <blockquote>
-          <p>What I cannot create, I do not understand.</p>
-        </blockquote>
+      <div class="about-prose">
+        <section aria-labelledby="about-global-minima">
+          <h1 id="about-global-minima" class="about-title">Why Global Minima</h1>
+          <p>
+            A global minimum is the lowest value a function attains across all
+            allowed inputs. Picture a landscape: a local minimum is the bottom
+            of one valley; a global minimum is the lowest elevation anywhere
+            on the map. Several different places can share that elevation.
+          </p>
+          <p>
+            The shape of the landscape changes the search. In a
+            <a href="https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf#page=152">convex problem</a>,
+            the landscape has a bowl-like geometry: every local minimum is
+            global. On rougher terrain, following the downhill slope
+            can leave a search in a shallower valley. Trying different starting
+            points may uncover a better solution, but finding the best one so
+            far and proving that nothing better exists are different achievements.
+          </p>
+          <p>
+            More computation can widen the search, provided the method can
+            make use of it. In
+            <a href="https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf">The Bitter Lesson</a>,
+            Richard Sutton argues that AI methods built around search and
+            learning have repeatedly benefited more from growing computational
+            power than approaches built around human expertise. His argument
+            favors systems that can keep discovering over systems limited to
+            what their designers already understand. I see a useful principle
+            here for thinking, too: give an idea a way to meet evidence you did
+            not anticipate.
+          </p>
+          <p>
+            I use the plural because there are many problems worth working on,
+            each with its own measure of better. Outside mathematics, deciding
+            what to optimize is itself part of the work. We often settle into
+            local minima: an explanation that survives familiar objections,
+            a routine that escapes further thought. Another field, experiment,
+            or person may show us what we missed. The search may never be
+            finished. I enjoy the journey, including the difficult stretches,
+            and I have no intention of giving up.
+          </p>
+          <p>The world might just be a playground simulator, so why not have fun?</p>
+        </section>
+
+        <section class="about-section" aria-labelledby="about-author">
+          <h2 id="about-author" class="about-section-heading">Jizhou Xu</h2>
+          <p>
+            Labels are hard, but I think of myself as an ensemble: a builder,
+            a researcher, and a backer of ideas. My interests run through
+            science, technology, and markets. I like tracing an argument to
+            its assumptions, building something that puts it to a test, and
+            working with people to give promising ideas a fair chance.
+          </p>
+          <figure class="about-quote">
+            <blockquote>
+              <p>What I cannot create, I do not understand.</p>
+            </blockquote>
+            <figcaption>
+              <a href="https://digital.archives.caltech.edu/collections/Images/1.10-67/">Richard Feynman</a>
+            </figcaption>
+          </figure>
+          <p>
+            I write here to put those interests into conversation with yours.
+            You might know a field I am only beginning to understand; I might
+            see a connection that is easier to notice from outside it. If an
+            essay leaves you with a question, an objection, or something you
+            want to test, I would like to hear from you. We can follow it
+            further together.
+          </p>
+        </section>
       </div>
 
-      <!-- Disciplines -->
-      <section class="about-section">
-        <h2 class="about-section-heading">Disciplines</h2>
-        <div class="about-tags">
+      <section class="about-section" aria-labelledby="about-topics">
+        <h2 id="about-topics" class="about-section-heading">Topics</h2>
+        <nav class="about-tags" aria-label="Writing topics">
           {
-            topics.map((t) => publishedTags.has(t) ? (
-              <a href={`${base}${tagPath(t)}`} class="tag">
-                {t}
+            topics.map((topic) => (
+              <a href={`${base}${tagPath(topic)}`} class="tag">
+                {topic}
               </a>
-            ) : <span class="tag">{t}</span>)
+            ))
           }
-        </div>
+        </nav>
       </section>
 
-      <!-- Worm Sign -->
       <section class="about-section">
-        <h2 class="about-section-heading">Worm Sign</h2>
+        <h2 class="about-section-heading">GitHub Activity</h2>
         <div class="github-chart-wrapper">
-          <img
-            class="github-chart-light"
-            src="https://ghchart.rshah.org/1A4A99/jizhouxu"
-            alt="GitHub contribution calendar for jizhouxu"
-            loading="lazy"
-          />
-          <img
-            class="github-chart-dark"
-            src="https://ghchart.rshah.org/8C1220/jizhouxu"
-            alt="GitHub contribution calendar for jizhouxu"
-            loading="lazy"
-          />
+          <div class="github-chart-frame" role="region" aria-label="GitHub contribution calendar" tabindex="0">
+            <img
+              class="github-chart-light"
+              src="https://ghchart.rshah.org/315C4B/jizhouxu"
+              alt="GitHub contribution calendar for jizhouxu"
+              width="663"
+              height="104"
+              loading="lazy"
+            />
+            <img
+              class="github-chart-dark"
+              src="https://ghchart.rshah.org/474544/jizhouxu"
+              alt="GitHub contribution calendar for jizhouxu"
+              width="663"
+              height="104"
+              loading="lazy"
+            />
+          </div>
           <p class="github-chart-caption">
             <a
               href="https://github.com/jizhouxu"
@@ -66,12 +127,6 @@ const publishedTags = new Set(
           </p>
         </div>
       </section>
-
-      <!-- Maker -->
-      <div class="about-maker">
-        <span class="about-maker-label">Maker</span>
-        <span class="about-maker-name">Jizhou Xu</span>
-      </div>
 
     </article>
   </main>

@@ -2,43 +2,26 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/*
- * Runtime CSS custom properties for theming.
- * Using plain :root vars (not @theme) so dark mode overrides work
- * without JavaScript — @theme emits static values at build time.
- *
- * Palette: "Dune"
- * Light — House Atreides: arrakeen sand, spice ink, Fremen blue-eyes
- * Dark  — House Harkonnen: Giedi Prime void, industrial, baron's crimson
- */
+/* Screen interpretations of Arctic White / Brooklands Green and Infinity Black /
+ * Jubilee Silver. Keep the explicit and system dark palettes identical. */
 :root {
   color-scheme: light;
-  --bg: #F5EAD0;
-  /* bleached Arrakeen noon — more golden, less orange */
-  --text: #1A1106;
-  /* warm near-black, deeper contrast */
-  --muted: #766044;
-  /* tan-khaki sandstone, less greenish */
-  --border: #D4C49E;
-  /* dune ridge shadow — crisper separation */
-  --accent: #1A4A99;
-  /* Fremen cobalt-blue — more saturated */
-  --code-bg: #DDD0B5;
-  /* tighter delta from --bg for inline code readability */
-  --code-text: #2A1C08;
-
-  /* Spice (melange) motif variables */
-  --spice: #B87333;
-  /* copper-orange — raw spice color from harvester scenes */
-  --spice-glow: #B8733308;
-  /* near-transparent warm tint for atmospheric background */
+  --bg: #F8F9FA;
+  --text: #202327;
+  --muted: #62676B;
+  --border: #D9DDDF;
+  --accent: #315C4B;
+  --code-bg: #ECEFF0;
+  --code-text: #30373B;
+  --atmosphere: #00000003;
 
   /* Per-theme tag corner radius */
-  --tag-radius: 4px;
-  /* organic desert-eroded rounding for House Atreides */
+  --tag-radius: 3px;
 
   /* Shared content column width — header, page body, and footer all align to this */
   --site-width: 800px;
+  --page-space: clamp(1.75rem, 4vw, 3rem);
+  --section-space: clamp(2rem, 4vw, 2.75rem);
 
   /*
    * Reusable gradient separator: a hairline that fades at both ends.
@@ -51,45 +34,28 @@
 /* Dark — explicit user override via data-theme="dark" on <html> */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #080609;
-  /* deeper void — cool purple-black */
-  --text: #CCC4D6;
-  /* pallid Giedi Prime flesh, slightly more lavender */
-  --muted: #95889F;
-  /* violet-shifted industrial gray */
-  --border: #2E2438;
-  /* Giedi Prime stone seam — muted cool-purple, clearly legible at 1–2px */
-  --accent: #D65F6D;
-  /* legible crimson on the Giedi Prime background */
-  --code-bg: #110A16;
-  /* marginally deeper void for code insets */
-  --code-text: #B8B0C0;
-
-  /* Spice (melange) dark-mode residue */
-  --spice: #3D1A0A;
-  /* dark spice residue — processed melange rust */
-  --spice-glow: #3D1A0A10;
-  /* near-transparent atmospheric tint */
-
-  /* Per-theme tag corner radius */
-  --tag-radius: 1px;
-  /* near-square machine-stamp, sharp Harkonnen industrial */
+  --bg: #0D0F10;
+  --text: #E7E9EA;
+  --muted: #A5AAAD;
+  --border: #30363A;
+  --accent: #B8BABB;
+  --code-bg: #191D1F;
+  --code-text: #D8DCDE;
+  --atmosphere: #FFFFFF03;
 }
 
 /* Dark — system preference (only when user hasn't forced light) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #080609;
-    --text: #CCC4D6;
-    --muted: #95889F;
-    --border: #2E2438;
-    --accent: #D65F6D;
-    --code-bg: #110A16;
-    --code-text: #B8B0C0;
-    --spice: #3D1A0A;
-    --spice-glow: #3D1A0A10;
-    --tag-radius: 1px;
+    --bg: #0D0F10;
+    --text: #E7E9EA;
+    --muted: #A5AAAD;
+    --border: #30363A;
+    --accent: #B8BABB;
+    --code-bg: #191D1F;
+    --code-text: #D8DCDE;
+    --atmosphere: #FFFFFF03;
   }
 }
 
@@ -103,14 +69,8 @@
 
 html {
   background-color: var(--bg);
-  /*
-   * Spice atmosphere: a barely-perceptible radial gradient above the viewport.
-   * In Atreides mode: warm copper haze (~3% alpha).
-   * In Harkonnen mode: dark rust shadow (~6% alpha).
-   * Purely cosmetic — no paint layer impact.
-   */
   background-image: radial-gradient(ellipse 80% 50% at 50% -10%,
-      var(--spice-glow),
+      var(--atmosphere),
       transparent 70%);
   color: var(--text);
   /* System serif for body text — avoids FOUT/CLS, matches Gregory Gundersen aesthetic */
@@ -193,7 +153,6 @@ a:hover {
   animation: reading-progress-grow linear;
   animation-timeline: scroll();
   z-index: 100;
-  /* Spice-eye glow: cobalt blue (Atreides) or blood-red pulse (Harkonnen) */
   box-shadow: 0 0 8px 1px var(--accent);
   /* Fallback: hidden on browsers without scroll-driven animation support */
 }
@@ -230,12 +189,6 @@ a:hover {
   font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
-/*
- * Blockquotes styled as Dune chapter epigraphs — centered, italic, framed by
- * hairline rules above and below. Attribution (in <cite> or a lone <em> as the
- * last child) renders in small-caps accent color, matching the "— Pardot Kynes,
- * Planetologist" attribution style from the novels.
- */
 .prose blockquote {
   border-left: none;
   background-color: transparent;
@@ -343,21 +296,6 @@ a:hover {
   color: var(--shiki-dark) !important;
 }
 
-/*
- * Harkonnen dark mode: crimson edge-glow on code blocks.
- * The leftward box-shadow evokes machinery edge-lighting from Giedi Prime.
- * Does not touch background-color — Shiki dual-theme mechanism is preserved.
- */
-:root[data-theme="dark"] .prose pre {
-  box-shadow: -3px 0 10px -2px var(--accent);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .prose pre {
-    box-shadow: -3px 0 10px -2px var(--accent);
-  }
-}
-
 /* Sans-serif for headings — system-ui gives a modern contrast to Georgia body */
 .prose h1,
 .prose h2,
@@ -367,32 +305,13 @@ a:hover {
   letter-spacing: -0.02em;
 }
 
-/*
- * Sandworm tracks: three parallel hairlines as section dividers.
- * Evokes the three-ridged track pattern left by sandworm passage
- * across the Arrakeen desert.
- */
 .prose hr {
   border: none;
-  height: 9px;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(var(--border) 1px, transparent 1px);
-  background-size: 100% 1px, 100% 1px, 100% 1px;
-  background-position: top, center, bottom;
-  background-repeat: no-repeat;
-  opacity: 0.55;
-  margin: 2.5rem 0;
+  height: 1px;
+  background: var(--border);
+  margin: var(--section-space) 0;
 }
 
-/* ─── Drop cap — Dune illuminated initial ───────────────────────────────── */
-/*
- * The first letter of each post's opening paragraph is enlarged and colored
- * in the accent — Fremen cobalt (Atreides) or dried-blood crimson (Harkonnen).
- * Evokes the illuminated initials of archival manuscripts and Dune's own chapter
- * typesetting. Pure CSS, no markup changes needed in .mdx posts.
- */
 .prose>p:first-of-type::first-letter {
   float: left;
   font-size: 3.2em;
@@ -428,16 +347,11 @@ a:hover {
     padding-left: 0.875rem;
     border-left: none;
     /* Gradient left border via --gradient-sep (fades at top & bottom edges) */
-    /*
-     * Two-layer background: gradient separator hairline on the left edge,
-     * plus a faint spice-atmosphere warm tint (candlelight on parchment).
-     * background-image takes the separator; background-color takes the tint.
-     */
     background-image: var(--gradient-sep);
     background-size: 1px 100%;
     background-repeat: no-repeat;
     background-position: left center;
-    background-color: var(--spice-glow);
+    background-color: var(--atmosphere);
   }
 }
 
@@ -460,8 +374,7 @@ a:hover {
 
 /* ─── Site header / nav ─────────────────────────────────────────────────── */
 .site-header {
-  padding: 1.25rem 0;
-  margin-bottom: 1.5rem;
+  padding: 1rem 0 0;
 }
 
 .site-nav {
@@ -470,7 +383,7 @@ a:hover {
   gap: 1.5rem;
   max-width: var(--site-width);
   margin: 0 auto;
-  padding: 1.25rem 0;
+  padding: 0.875rem 0;
   /* Gradient separator: fades at edges for a calligraphic, carved quality */
   position: relative;
 }
@@ -485,7 +398,7 @@ a:hover {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 1px;
   background: linear-gradient(to right,
       transparent,
       var(--border) 20%,
@@ -494,8 +407,9 @@ a:hover {
 }
 
 .site-title {
-  font-weight: 800;
+  font-weight: 700;
   margin-right: auto;
+  white-space: nowrap;
 }
 
 .site-title:hover {
@@ -505,12 +419,18 @@ a:hover {
 
 .site-nav a {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1rem;
   color: var(--muted);
   text-decoration: none;
   letter-spacing: 0.01em;
   /* barely-perceptible inscribed quality */
   transition: color 0.15s ease;
+}
+
+.site-nav .site-title {
+  color: var(--text);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
 }
 
 .site-nav a:hover {
@@ -545,46 +465,37 @@ a:hover {
   color: var(--text);
 }
 
-/*
- * Icon crossfade: both SVGs are stacked absolutely inside the button.
- * Light mode → show Atreides eagle.
- * Dark mode  → show Harkonnen Black Sun.
- *
- * We match the same specificity pattern used for dark-mode variable overrides above.
- */
-.icon-atreides,
-.icon-harkonnen {
+.icon-sun-light,
+.icon-sun-dark {
   position: absolute;
   top: 3px;
   left: 3px;
   transition: opacity 0.2s ease;
 }
 
-/* Light mode (default — House Atreides): show Atreides symbol */
-.icon-atreides {
+.icon-sun-light {
   opacity: 1;
 }
 
-.icon-harkonnen {
+.icon-sun-dark {
   opacity: 0;
 }
 
-/* Dark mode via explicit user toggle — House Harkonnen: show Harkonnen symbol */
-:root[data-theme="dark"] .icon-atreides {
+:root[data-theme="dark"] .icon-sun-light {
   opacity: 0;
 }
 
-:root[data-theme="dark"] .icon-harkonnen {
+:root[data-theme="dark"] .icon-sun-dark {
   opacity: 1;
 }
 
 /* Dark mode via system preference (when user hasn't forced light) */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .icon-atreides {
+  :root:not([data-theme="light"]) .icon-sun-light {
     opacity: 0;
   }
 
-  :root:not([data-theme="light"]) .icon-harkonnen {
+  :root:not([data-theme="light"]) .icon-sun-dark {
     opacity: 1;
   }
 }
@@ -593,15 +504,14 @@ a:hover {
 .post-container {
   max-width: var(--site-width);
   margin: 0 auto;
+  padding: var(--page-space) 0 0;
 }
 
 .post-header {
-  margin-bottom: 2.5rem;
-  padding: 0 0 1.5rem;
+  margin-bottom: 2rem;
+  padding: 0 0 1.25rem;
   position: relative;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  /* Spice atmosphere wash — faint amber (Atreides) or rust (Harkonnen) that fades into page */
-  background: linear-gradient(to bottom, var(--spice-glow), transparent);
 }
 
 .post-header::after {
@@ -624,6 +534,15 @@ a:hover {
   color: var(--text);
 }
 
+.post-summary {
+  max-width: 65ch;
+  margin: 0 0 1.25rem;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
 .post-meta {
   display: flex;
   flex-wrap: wrap;
@@ -639,22 +558,22 @@ a:hover {
   gap: 0.4rem;
 }
 
-/*
- * Tags styled as House insignia stamps: uppercase, tracked, outlined with no fill.
- * Atreides mode: 4px organic rounding (--tag-radius). Harkonnen: 1px machine-stamp.
- * The monospace font + uppercase + letter-spacing reads as archival classification.
- */
 .tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  max-width: 100%;
   font-size: 0.7rem;
-  font-family: ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--muted);
   background: transparent;
   border: 1px solid var(--border);
   border-radius: var(--tag-radius);
   padding: 2px 8px;
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  letter-spacing: 0.02em;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -719,8 +638,7 @@ a.tag:hover {
 .post-subscribe-share {
   margin-top: 1.5rem;
   padding: 1.25rem 0rem;
-  background: linear-gradient(to top, var(--spice-glow), transparent);
-  /* organic Atreides / sharp Harkonnen */
+  background: linear-gradient(to top, var(--atmosphere), transparent);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -850,20 +768,17 @@ a.tag:hover {
 .page-container {
   max-width: var(--site-width);
   margin: 0 auto;
-  padding: 3rem 0;
+  padding: var(--page-space) 0 0;
 }
 
-/*
- * .page-heading-row: the Essays label and post count side by side.
- * The count is faint, providing orientation without cluttering the top.
- */
+/* Section heading and archive link share one row. */
 .page-heading-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.25rem;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 1rem;
+  padding-bottom: 0.75rem;
 }
 
 .page-heading {
@@ -876,23 +791,16 @@ a.tag:hover {
   margin: 0;
 }
 
-.page-heading-count {
-  font-family: ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
-  font-size: 0.7rem;
-  color: var(--muted);
-  letter-spacing: 0.03em;
-}
-
 /* ─── Site footer ───────────────────────────────────────────────────────── */
 .site-footer {
-  padding: 1.25rem 0;
-  margin-top: 1.5rem;
+  padding: 0 0 1.5rem;
+  margin-top: var(--section-space);
 }
 
 .site-footer-inner {
   max-width: var(--site-width);
   margin: 0 auto;
-  padding: 1.5rem 0 0;
+  padding: 1.25rem 0 0;
   position: relative;
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 0.78rem;
@@ -909,7 +817,7 @@ a.tag:hover {
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 1px;
   background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
 }
 
@@ -923,7 +831,112 @@ a.tag:hover {
   color: var(--accent);
 }
 
-/* ─── Essays archive (year/month grouped) ──────────────────────────────── */
+/* ─── Writing archive and topic filters ───────────────────────────────── */
+
+.writing-quote {
+  margin: 0;
+  text-align: left;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-style: normal;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.writing-quote p {
+  margin: 0;
+  max-width: 62ch;
+}
+
+.writing-quote-opening {
+  margin-bottom: 1.75rem;
+}
+
+.writing-quote-closing {
+  margin-top: var(--section-space);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.writing-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 2rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.tag-filters {
+  min-width: 0;
+}
+
+.tag-filters ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tag-filters li {
+  max-width: 100%;
+}
+
+.tag-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--tag-radius);
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.tag-filter:hover,
+.tag-filter:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.tag-filter[aria-current="page"] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+  font-weight: 600;
+}
+
+.writing-post-count {
+  margin: 0;
+  flex-shrink: 0;
+  color: var(--muted);
+  font-family: ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.writing-posts .year-section:last-child {
+  margin-bottom: 0;
+}
+
+.writing-empty {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+
+/* ─── Posts grouped by year and month ─────────────────────────────────── */
 
 .year-section {
   margin-bottom: 2.75rem;
@@ -977,7 +990,7 @@ a.tag:hover {
 }
 
 .essays-item {
-  padding: 0.5rem 0;
+  padding: 1.15rem 0;
   margin: 0;
   position: relative;
 }
@@ -995,7 +1008,6 @@ a.tag:hover {
 .essays-item:last-child::after {
   display: none;
 }
-
 
 .essays-title-row {
   display: flex;
@@ -1075,81 +1087,54 @@ a.tag:hover {
   color: var(--accent);
 }
 
-.about-section {
-  margin-top: 2.75rem;
+.about-title {
+  margin: 0 0 1.25rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
-/*
- * Section headings: system-ui sans-serif to contrast the Georgia body,
- * matching the prose h2 aesthetic used inside MDX posts.
- * Gradient hairline below mirrors nav, year headings, and post-header separators.
- */
+.about-quote {
+  margin: 1.75rem 0;
+  padding: 0.2rem 0 0.2rem 1.25rem;
+  border-left: 1px solid var(--border);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.about-quote blockquote {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.about-quote blockquote p {
+  margin: 0;
+}
+
+.about-quote figcaption {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.about-section {
+  margin-top: var(--section-space);
+}
+
+/* Spacing and type establish hierarchy inside the continuous About prose. */
 .about-section-heading {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text);
-  margin: 0 0 1.25rem;
-  padding-bottom: 0.75rem;
-  position: relative;
+  margin: 0 0 1rem;
 }
 
-.about-section-heading::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(to right,
-    transparent, var(--border) 20%, var(--border) 80%, transparent);
-}
-
-/*
- * Maker imprint: archival House-stamp at the foot of the About page.
- * "Maker" is the Fremen name for Shai-Hulud; used here as author/creator credit.
- * Monospace + uppercase + accent name mirrors the classification-stamp aesthetic
- * of .tag badges and .github-chart-caption.
- */
-.about-maker {
-  margin-top: 3rem;
-  padding-top: 1.25rem;
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.about-maker::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(to right,
-    transparent, var(--border) 20%, var(--border) 80%, transparent);
-}
-
-.about-maker-label {
-  font-family: ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.about-maker-name {
-  font-family: ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-/* Topic interest tags — flex row of existing .tag badges */
+/* Published topics link directly to the shared writing filters. */
 .about-tags {
   display: flex;
   flex-wrap: wrap;
@@ -1157,30 +1142,42 @@ a.tag:hover {
   padding-top: 0.25rem;
 }
 
-/* ─── GitHub contribution chart (Transmission Record) ───────────────────── */
-/*
- * Two <img> elements are rendered: one tinted Fremen cobalt (Atreides / light),
- * one tinted dried-blood crimson (Harkonnen / dark). CSS mirrors the exact same
- * pattern used for the Atreides/Harkonnen SVG icon crossfade in the nav.
- */
+/* ─── GitHub contribution chart ───────────────────────────────────────── */
+
 .github-chart-wrapper {
   margin-top: 0.75rem;
+}
+
+.github-chart-frame {
+  overflow-x: auto;
+  /* Start narrow viewports at the most recent weeks, on the right. */
+  direction: rtl;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem;
+  background: var(--code-bg);
 }
 
 .github-chart-light,
 .github-chart-dark {
   width: 100%;
+  min-width: 663px;
   height: auto;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 1rem;
-  background: var(--code-bg);
+  direction: ltr;
   display: block;
+}
+
+/* ghchart fixes empty cells at #eee and creates tiers by adding RGB offsets.
+   Darken the light grid; invert a complementary dark palette so tiers never
+   clip to white. Keep the frame outside these image-only filters. */
+.github-chart-light {
+  filter: brightness(0.78);
 }
 
 /* Default: light chart visible, dark chart hidden */
 .github-chart-dark {
   display: none;
+  filter: invert(1) contrast(0.65) brightness(1.3);
 }
 
 /* Explicit dark toggle */
@@ -1213,7 +1210,6 @@ a.tag:hover {
   text-transform: uppercase;
 }
 
-/* Username rendered in House accent color — Fremen cobalt (Atreides) or dried blood (Harkonnen) */
 .github-chart-caption a {
   color: var(--accent);
   text-decoration: none;
@@ -1238,16 +1234,7 @@ a.tag:hover {
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
   align-items: center;
   gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.home-eyebrow {
-  margin: 0 0 0.8rem;
-  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted);
+  margin-bottom: var(--section-space);
 }
 
 .home-title {
@@ -1273,11 +1260,7 @@ a.tag:hover {
   font-size: 0.75rem;
 }
 
-.home-essays .essays-item {
-  padding: 1.15rem 0;
-}
-
-.home-essays h3 {
+.essays-heading {
   margin: 0;
   line-height: 1.35;
 }
@@ -1292,6 +1275,7 @@ a.tag:hover {
 
 .essays-title,
 .prose,
+.about-prose,
 .post-title {
   overflow-wrap: anywhere;
 }
@@ -1305,8 +1289,7 @@ a.tag:hover {
   }
 
   .site-header {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem 0;
+    padding-top: 0.5rem;
   }
 
   .site-nav {
@@ -1323,10 +1306,6 @@ a.tag:hover {
     letter-spacing: -0.02em;
   }
 
-  .page-container {
-    padding: 1.5rem 0;
-  }
-
   .home-intro {
     grid-template-columns: 1fr;
     gap: 1.25rem;
@@ -1338,8 +1317,21 @@ a.tag:hover {
   }
 
   .page-heading-row {
-    margin-bottom: 1rem;
     gap: 0.75rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .site-nav {
+    gap: 0.45rem;
+  }
+
+  .site-nav a {
+    font-size: 0.75rem;
+  }
+
+  .site-nav .site-title {
+    font-size: 0.85rem;
   }
 }
 

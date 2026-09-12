@@ -1,10 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+import WritingPost from '../../layouts/WritingPost.astro';
 import { getSlug, comparePostsNewestFirst } from '../../utils/reading-time';
 
 export async function getStaticPaths() {
-  const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  const posts = (await getCollection('writing')).sort(
     comparePostsNewestFirst
   ).reverse();
 
@@ -27,6 +27,6 @@ const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<BlogPost post={post} prev={prev} next={next}>
+<WritingPost post={post} prev={prev} next={next}>
   <Content />
-</BlogPost>
+</WritingPost>

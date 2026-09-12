@@ -9,6 +9,10 @@ const files = readdirSync(root, { recursive: true }).filter(file => file.endsWit
 const pages = files.map(file => ({file, html: readFileSync(resolve(root, file), 'utf8')}));
 const decode = value => value.replaceAll('&amp;', '&');
 const canonical = html => html.match(/<link\b[^>]*rel="canonical"[^>]*href="([^"]+)"/)?.[1];
+const articles = pages.filter(({html}) => /<meta\b[^>]*property="og:type"[^>]*content="article"/.test(html));
+const linkPath = (href, html) => decodeURIComponent(new URL(decode(href), decode(canonical(html))).pathname);
+const listedPosts = html => [...html.matchAll(/<a\b[^>]*class="essays-title"[^>]*href="([^"]+)"/g)]
+  .map(([, href]) => linkPath(href, html));
 
 function findOutput(pathname) {
   for (const path of [decodeURIComponent(pathname), pathname]) {
@@ -51,10 +55,10 @@ test('all local links, assets, and fragment targets exist in the generated site'
 test('RSS entries resolve to articles and agree with their canonical URLs', () => {
   const rss = readFileSync(resolve(root, 'rss.xml'), 'utf8');
   const items = [...rss.matchAll(/<item>([\s\S]*?)<\/item>/g)];
-  const articles = pages.filter(({file}) => file.startsWith(`blog${sep}`));
   assert.equal(items.length, articles.length);
   for (const [, item] of items) {
     const link = decode(item.match(/<link>(.*?)<\/link>/)[1]);
+    assert.match(new URL(link).pathname, /\/writing\/.+/, 'Article URLs use the writing route');
     const target = findOutput(new URL(link).pathname);
     assert.ok(target, link);
     assert.equal(decode(canonical(readFileSync(target, 'utf8'))), link);
@@ -77,10 +81,8 @@ test('RSS, article indexes, and adjacent-post links use a consistent publication
     }
   }
 
-  const linkPath = (href, html) => decodeURIComponent(new URL(decode(href), decode(canonical(html))).pathname);
   for (const {file, html} of pages) {
-    const listed = [...html.matchAll(/<a\b[^>]*class="essays-title"[^>]*href="([^"]+)"/g)]
-      .map(([, href]) => linkPath(href, html));
+    const listed = listedPosts(html);
     if (!listed.length) continue;
     const expected = file.startsWith(`tags${sep}`) ? paths.filter(path => listed.includes(path)) : paths;
     assert.deepEqual(listed, expected, `Article index differs from RSS: ${file}`);
@@ -96,8 +98,102 @@ test('RSS, article indexes, and adjacent-post links use a consistent publication
   }
 });
 
+test('Writing navigation selects the archive, articles, and tag pages', () => {
+  for (const {file, html} of pages) {
+    const navigation = html.match(/<nav\b[^>]*aria-label="Main navigation"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? '';
+    const writingLink = [...navigation.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)]
+      .find(([, , label]) => label.trim() === 'Writing');
+    assert.ok(writingLink, `Writing link missing: ${file}`);
+    const attributes = writingLink[1];
+    const archivePath = linkPath(attributes.match(/href="([^"]+)"/)[1], html);
+    assert.match(archivePath, /\/writing$/);
+    const pathname = new URL(decode(canonical(html))).pathname;
+    const isWriting = pathname === archivePath || pathname.startsWith(`${archivePath}/`) || /\/tags\//.test(pathname);
+    assert.equal(attributes.includes('aria-current="page"'), isWriting, `Writing navigation selection: ${file}`);
+  }
+});
+
+test('tag filters show matching posts, accurate counts, and a way to return to all posts', () => {
+  const archive = pages.find(({html}) => /\/writing$/.test(new URL(decode(canonical(html))).pathname));
+  assert.ok(archive, 'Writing archive missing');
+  const archivePath = new URL(decode(canonical(archive.html))).pathname;
+  const allPosts = listedPosts(archive.html);
+  assert.equal(allPosts.length, articles.length);
+  const membership = new Map();
+  for (const {html} of articles) {
+    const pathname = decodeURIComponent(new URL(decode(canonical(html))).pathname);
+    const tags = html.match(/<div\b[^>]*class="post-tags"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    for (const [, href] of tags.matchAll(/<a\b[^>]*href="([^"]+)"/g)) {
+      const tag = linkPath(href, html);
+      if (!membership.has(tag)) membership.set(tag, new Set());
+      membership.get(tag).add(pathname);
+    }
+  }
+
+  const filteredPages = pages.filter(({file}) => file.startsWith(`tags${sep}`));
+  assert.equal(filteredPages.length, membership.size, 'Every public tag has one filter page');
+  const about = pages.find(({html}) => /\/about$/.test(new URL(decode(canonical(html))).pathname));
+  assert.ok(about, 'About page missing');
+  const topics = about.html.match(/<nav\b[^>]*aria-label="Writing topics"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
+  assert.ok(topics, 'About links to its writing topics');
+  const topicPaths = [...topics.matchAll(/<a\b[^>]*href="([^"]+)"/g)]
+    .map(([, href]) => linkPath(href, about.html));
+  assert.deepEqual(topicPaths.sort(), [...membership.keys()].sort(), 'About topics match published tags');
+  for (const {file, html} of [archive, ...filteredPages]) {
+    const pathname = decodeURIComponent(new URL(decode(canonical(html))).pathname);
+    const navigation = html.match(/<nav\b[^>]*aria-label="Filter posts by tag"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
+    assert.ok(navigation, `Tag filters missing: ${file}`);
+    const filters = [...navigation.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(([, attributes, label]) => ({
+      pathname: linkPath(attributes.match(/href="([^"]+)"/)[1], html),
+      current: attributes.includes('aria-current="page"'),
+      count: Number(attributes.match(/aria-label="[^"]*: (\d+) posts?"/)?.[1]),
+      label: label.replace(/<[^>]+>/g, '').trim(),
+    }));
+    assert.deepEqual(filters.map(filter => filter.pathname).sort(), [archivePath, ...membership.keys()].sort(), `Available filters: ${file}`);
+    assert.deepEqual(filters.filter(filter => filter.current).map(filter => filter.pathname), [pathname], `Selected filter: ${file}`);
+    const allFilter = filters.find(filter => filter.pathname === archivePath);
+    assert.equal(allFilter.label, 'All', `Clear filter control: ${file}`);
+    for (const filter of filters) {
+      const expectedCount = filter.pathname === archivePath ? allPosts.length : membership.get(filter.pathname).size;
+      assert.equal(filter.count, expectedCount, `Filter count: ${file}: ${filter.pathname}`);
+    }
+    const expectedPosts = pathname === archivePath ? allPosts : allPosts.filter(post => membership.get(pathname)?.has(post));
+    assert.deepEqual(listedPosts(html), expectedPosts, `Filtered results: ${file}`);
+    const count = html.match(/<[^>]+class="writing-post-count"[^>]*>([\s\S]*?)<\/[^>]+>/)?.[1].trim();
+    const total = `${allPosts.length} ${allPosts.length === 1 ? 'post' : 'posts'}`;
+    assert.equal(count, pathname === archivePath ? total : `${expectedPosts.length} of ${total}`, `Visible post count: ${file}`);
+  }
+});
+
+test('old essay, article, and tag URLs redirect permanently to their current routes', () => {
+  const {redirects} = JSON.parse(readFileSync(resolve('vercel.json'), 'utf8'));
+  const expected = [
+    ['/essays', '/writing'],
+    ['/blog/hello-world', '/writing/inception'],
+    ['/blog/how-we-built-our-writing-protocol', '/writing/le-mot-juste'],
+    ['/blog/on-writing-technically', '/writing/le-mot-juste'],
+    ['/tags/meta', '/tags/reflections'],
+    ['/tags/writing', '/writing'],
+  ];
+  for (const [source, destination] of expected) {
+    const redirect = redirects.find(rule => rule.source === source);
+    assert.ok(redirect, `Redirect missing: ${source}`);
+    assert.equal(redirect.destination, destination, source);
+    assert.equal(redirect.permanent, true, source);
+    if (!destination.includes(':')) assert.ok(findOutput(destination), `Redirect target missing: ${destination}`);
+  }
+  const wildcardIndex = redirects.findIndex(rule => /^\/blog\/:\w+\*$/.test(rule.source));
+  assert.ok(wildcardIndex >= 0, 'Nested blog paths need a wildcard redirect');
+  const wildcard = redirects[wildcardIndex];
+  assert.equal(wildcard.destination, wildcard.source.replace('/blog/', '/writing/'));
+  assert.equal(wildcard.permanent, true);
+  for (const [source] of expected.filter(([source]) => source.startsWith('/blog/'))) {
+    assert.ok(redirects.findIndex(rule => rule.source === source) < wildcardIndex, `Specific redirect must precede the wildcard: ${source}`);
+  }
+});
+
 test('email signup cannot submit to an unconfigured placeholder', () => {
-  for (const {file, html} of pages.filter(({file}) => file.startsWith(`blog${sep}`))) {
+  for (const {file, html} of articles) {
     assert.doesNotMatch(html, /<form\b[^>]*action="#"/, file);
     assert.match(html, /<label[^>]*for="newsletter-email"/, file);
     assert.match(html, /href="[^"#]*\/rss\.xml"/, file);
@@ -110,15 +206,29 @@ test('email signup cannot submit to an unconfigured placeholder', () => {
   }
 });
 
-test('draft posts are excluded from output and public indexes', () => {
-  const contentRoot = resolve('src/content/blog');
-  for (const file of readdirSync(contentRoot, {recursive: true}).filter(file => /\.mdx?$/.test(file))) {
-    const source = readFileSync(resolve(contentRoot, file), 'utf8');
-    const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
-    if (!/^draft:\s*true\s*$/m.test(frontmatter)) continue;
+test('every collection entry is published as an article', () => {
+  const contentRoot = resolve('src/content/writing');
+  const entries = readdirSync(contentRoot, {recursive: true}).filter(file => /\.mdx?$/.test(file));
+  const articlePaths = articles.map(({html}) => decodeURIComponent(new URL(decode(canonical(html))).pathname));
+  assert.equal(articles.length, entries.length);
+  for (const file of entries) {
     const slug = file.replace(/\.mdx?$/, '').split(sep).join('/');
-    assert.ok(!findOutput(`/blog/${slug}`), `Draft was published: ${file}`);
-    for (const {html} of pages) assert.ok(!html.includes(`/blog/${slug}"`), `Draft was linked: ${file}`);
-    assert.ok(!readFileSync(resolve(root, 'rss.xml'), 'utf8').includes(`/blog/${slug}</link>`), file);
+    assert.ok(articlePaths.some(path => path.endsWith(`/writing/${slug}`)), `Collection entry missing from output: ${file}`);
+  }
+});
+
+test('article headers display the summary and one publication date matching their metadata', () => {
+  for (const {file, html} of articles) {
+    const header = html.match(/<header\b[^>]*class="post-header"[^>]*>([\s\S]*?)<\/header>/)?.[1] ?? '';
+    const summary = header.match(/<p\b[^>]*class="post-summary"[^>]*>([\s\S]*?)<\/p>/)?.[1];
+    const description = html.match(/<meta\b[^>]*name="description"[^>]*content="([^"]+)"/)?.[1];
+    assert.ok(summary?.trim(), `Visible post summary: ${file}`);
+    // Quotes are escaped in attributes but may remain literal in text nodes.
+    assert.equal(decode(summary).replaceAll('&quot;', '"'), decode(description).replaceAll('&quot;', '"'), `Summary metadata: ${file}`);
+    const times = [...header.matchAll(/<time\b[^>]*datetime="([^"]+)"/g)];
+    const publishedTime = html.match(/<meta\b[^>]*property="article:published_time"[^>]*content="([^"]+)"/)?.[1];
+    assert.equal(times.length, 1, `One post timestamp: ${file}`);
+    assert.equal(times[0][1], publishedTime, `Publication metadata: ${file}`);
+    assert.doesNotMatch(header, /\bUpdated\b/, file);
   }
 });

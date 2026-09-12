@@ -3,17 +3,37 @@
   "redirects": [
     {
       "source": "/blog/hello-world",
-      "destination": "/blog/inception",
+      "destination": "/writing/inception",
       "permanent": true
     },
     {
       "source": "/blog/how-we-built-our-writing-protocol",
-      "destination": "/blog/le-mot-juste",
+      "destination": "/writing/le-mot-juste",
       "permanent": true
     },
     {
       "source": "/blog/on-writing-technically",
-      "destination": "/blog/le-mot-juste",
+      "destination": "/writing/le-mot-juste",
+      "permanent": true
+    },
+    {
+      "source": "/essays",
+      "destination": "/writing",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:path*",
+      "destination": "/writing/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/tags/meta",
+      "destination": "/tags/reflections",
+      "permanent": true
+    },
+    {
+      "source": "/tags/writing",
+      "destination": "/writing",
       "permanent": true
     }
   ]

@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import { getSlug, comparePostsNewestFirst } from '../utils/reading-time';
 
 export async function GET(context) {
-  const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  const posts = (await getCollection('writing')).sort(
     comparePostsNewestFirst
   );
 
@@ -16,7 +16,7 @@ export async function GET(context) {
       title: post.data.title,
       pubDate: post.data.pubDate,
       description: post.data.description,
-      link: `${import.meta.env.BASE_URL.replace(/\/$/, '')}/blog/${getSlug(post.id)}`,
+      link: `${import.meta.env.BASE_URL.replace(/\/$/, '')}/writing/${getSlug(post.id)}`,
     })),
     customData: `<language>en-us</language>`,
   });

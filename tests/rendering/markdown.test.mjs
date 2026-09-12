@@ -67,4 +67,27 @@ test('shared site config renders Markdown and MDX', { timeout: 120_000 }, async 
     const html = await readFile(new URL('dist/spacing/index.html', fixtureRoot), 'utf8');
     assert.match(html, /<span>Inline<\/span>\s+<em>spacing<\/em>/);
   });
+
+  await t.test('metadata respects the site base and preserves external image URLs', async () => {
+    const cases = {
+      relative: '/fixture/images/card.png',
+      'root-relative': '/fixture/images/card.png',
+      external: 'https://images.example.test/card.png',
+      'scheme-relative': '//images.example.test/card.png',
+      absent: undefined,
+    };
+    for (const [name, image] of Object.entries(cases)) {
+      const html = await readFile(new URL(`dist/metadata-${name}/index.html`, fixtureRoot), 'utf8');
+      const canonical = new URL(html.match(/<link\b[^>]*rel="canonical"[^>]*href="([^"]+)"/)[1]);
+      assert.equal(canonical.pathname, `/fixture/metadata-${name}`);
+      const rss = new URL(html.match(/<link\b[^>]*type="application\/rss\+xml"[^>]*href="([^"]+)"/)[1]);
+      assert.equal(rss.origin, canonical.origin);
+      assert.equal(rss.pathname, '/fixture/rss.xml');
+      const expectedImage = image ? new URL(image, canonical).toString() : undefined;
+      const ogImage = html.match(/<meta\b[^>]*property="og:image"[^>]*content="([^"]+)"/)?.[1];
+      const twitterImage = html.match(/<meta\b[^>]*name="twitter:image"[^>]*content="([^"]+)"/)?.[1];
+      assert.equal(ogImage, expectedImage, `OpenGraph image: ${name}`);
+      assert.equal(twitterImage, expectedImage, `Twitter image: ${name}`);
+    }
+  });
 });

@@ -1,39 +1,104 @@
 ---
-// Sample and project a shallow valley at build time: no canvas or client script.
-function project(x: number, y: number): string {
-  const z = 0.32 * (x * x + y * y) + 0.12 * Math.sin(x * 2) * Math.sin(y * 2);
-  return `${(160 + (x - y) * 32).toFixed(1)},${(142 + (x + y) * 12 - z * 22).toFixed(1)}`;
+// A nonconvex surface with one provable global minimum: every term is
+// nonnegative, and the quadratic terms vanish only at the origin.
+// Geometry, perspective and lighting are calculated once at build time.
+const extent = 2.1;
+const divisions = 24;
+const floor = -0.55;
+
+function height(x: number, y: number): number {
+  return 0.12 * x * x + 0.09 * y * y
+    + 0.46 * Math.sin(1.8 * x) ** 2
+    + 0.38 * Math.sin(1.65 * y) ** 2;
 }
 
-const lines = Array.from({ length: 13 }, (_, index) => {
-  const fixed = -2.1 + index * 0.35;
-  return [false, true].map((transpose) =>
-    Array.from({ length: 33 }, (_, step) => {
-      const moving = -2.1 + step * 4.2 / 32;
-      return project(transpose ? moving : fixed, transpose ? fixed : moving);
-    }).join(' ')
-  );
-}).flat();
+function project(x: number, y: number, z = height(x, y)): string {
+  const perspective = 1 / (1 - (x + y) * 0.025);
+  return `${(205 + (x - y) * 42 * perspective).toFixed(1)},${(170 + ((x + y) * 21 - z * 37) * perspective).toFixed(1)}`;
+}
+
+const step = extent * 2 / divisions;
+const coordinates = Array.from({ length: divisions + 1 }, (_, i) => -extent + i * step);
+const surface = coordinates.slice(0, -1).flatMap((x) =>
+  coordinates.slice(0, -1).map((y) => {
+    const midpointX = x + step / 2;
+    const midpointY = y + step / 2;
+    const dx = 0.24 * midpointX + 0.828 * Math.sin(3.6 * midpointX);
+    const dy = 0.18 * midpointY + 0.627 * Math.sin(3.3 * midpointY);
+    const light = Math.max(0, (0.5 * dx + 0.7 * dy + 1) / Math.hypot(dx, dy, 1) / Math.hypot(0.5, 0.7, 1));
+
+    return {
+      depth: x + y,
+      points: [project(x, y), project(x + step, y), project(x + step, y + step), project(x, y + step)].join(' '),
+      shade: (5 + light * 17).toFixed(1),
+    };
+  })
+).sort((a, b) => a.depth - b.depth);
+
+// The two exposed edges connect the terrain to a quiet reference plane.
+const skirts = [false, true].map((transpose) => {
+  const edge = coordinates.map((moving) => project(transpose ? moving : extent, transpose ? extent : moving));
+  const start = transpose ? project(-extent, extent, floor) : project(extent, -extent, floor);
+  return [...edge, project(extent, extent, floor), start].join(' ');
+});
+
+const base = [
+  project(-extent, -extent, floor), project(extent, -extent, floor),
+  project(extent, extent, floor), project(-extent, extent, floor),
+].join(' ');
+
+const baseGrid = coordinates.filter((_, i) => i % 4 === 0).flatMap((fixed) => [
+  `${project(fixed, -extent, floor)} ${project(fixed, extent, floor)}`,
+  `${project(-extent, fixed, floor)} ${project(extent, fixed, floor)}`,
+]);
 ---
 
-<div class="minima-landscape" aria-hidden="true">
-  <svg viewBox="0 0 320 200" width="320" height="200" fill="none" focusable="false">
-    <path d="M20 167H300 M160 18V182" class="guide" stroke-dasharray="2 5" />
-    <g class="terrain" stroke-linecap="round" stroke-linejoin="round">
-      {lines.map((points) => <polyline points={points} />)}
+<div class="minima-landscape">
+  <svg viewBox="0 0 420 320" width="420" height="320" fill="none" role="img" aria-labelledby="landscape-title" aria-describedby="landscape-description" focusable="false">
+    <title id="landscape-title">Finding the global minimum</title>
+    <desc id="landscape-description">A three-dimensional mathematical landscape with several valleys. A bright point marks the lowest point of the entire surface, beyond the surrounding local minima.</desc>
+    <defs>
+      <radialGradient id="landscape-glow">
+        <stop stop-color="var(--accent)" stop-opacity="0.13" />
+        <stop offset="1" stop-color="var(--accent)" stop-opacity="0" />
+      </radialGradient>
+      <linearGradient id="landscape-side" x1="0" y1="0" x2="0" y2="1">
+        <stop stop-color="var(--accent)" stop-opacity="0.12" />
+        <stop offset="1" stop-color="var(--accent)" stop-opacity="0.015" />
+      </linearGradient>
+    </defs>
+
+    <ellipse cx="205" cy="181" rx="193" ry="132" fill="url(#landscape-glow)" />
+    <g class="reference-plane">
+      <polygon points={base} />
+      {baseGrid.map((points) => <polyline points={points} />)}
     </g>
-    <circle cx="160" cy="142" r="8" class="marker-halo" />
-    <circle cx="160" cy="142" r="2.5" class="marker" />
-    <path d="M165 146L195 179H232" class="annotation" />
-    <text x="238" y="182">min.</text>
-    <path d="M20 18V27 M15.5 22.5H24.5 M295.5 167H304.5 M300 162.5V171.5" class="guide" />
+    {skirts.map((points) => <polygon points={points} class="terrain-side" />)}
+    <g class="terrain" stroke-linejoin="round">
+      {surface.map(({ points, shade }) => (
+        <polygon points={points} style={`fill: color-mix(in srgb, var(--accent) ${shade}%, var(--bg))`} />
+      ))}
+    </g>
+
+    <g class="minimum">
+      <ellipse cx="205" cy="170" rx="13" ry="6" class="minimum-ring" />
+      <path d="M205 146V161 M185 170H193 M217 170H225" class="minimum-target" />
+      <circle cx="205" cy="170" r="3" class="minimum-point" />
+      <path d="M211 177L258 270H278" class="annotation" />
+      <text x="286" y="273">global min.</text>
+    </g>
+    <g class="frame">
+      <path d="M29 52V38H43 M367 38H381V52 M29 266V280H43" />
+      <text x="29" y="27">f(x, y)</text>
+      <path d="M372 259H388 M380 251V267" />
+    </g>
   </svg>
 </div>
 
 <style>
   .minima-landscape {
     width: 100%;
-    max-width: 340px;
+    max-width: 360px;
     justify-self: end;
   }
 
@@ -41,45 +106,70 @@ const lines = Array.from({ length: 13 }, (_, index) => {
     display: block;
     width: 100%;
     height: auto;
-    overflow: visible;
+  }
+
+  .reference-plane {
+    stroke: var(--accent);
+    stroke-width: 0.65;
+    opacity: 0.2;
+  }
+
+  .reference-plane polyline {
+    stroke-dasharray: 2 5;
+  }
+
+  .terrain-side {
+    fill: url(#landscape-side);
+    stroke: var(--accent);
+    stroke-width: 0.5;
+    stroke-opacity: 0.2;
   }
 
   .terrain {
     stroke: var(--accent);
-    stroke-width: 0.65;
-    opacity: 0.5;
+    stroke-width: 0.75;
+    stroke-opacity: 0.55;
   }
 
-  .guide {
-    stroke: var(--border);
-    stroke-width: 0.75;
+  .minimum-ring {
+    fill: var(--bg);
+    fill-opacity: 0.8;
+    stroke: var(--accent);
+    stroke-width: 0.8;
+  }
+
+  .minimum-target {
+    stroke: var(--accent);
+    stroke-width: 0.8;
+    opacity: 0.7;
+  }
+
+  .minimum-point {
+    fill: var(--accent);
   }
 
   .annotation {
-    stroke: var(--muted);
-    stroke-width: 0.6;
-  }
-
-  .marker-halo {
-    fill: var(--bg);
     stroke: var(--accent);
-    stroke-width: 0.6;
-  }
-
-  .marker {
-    fill: var(--accent);
+    stroke-width: 0.7;
+    opacity: 0.65;
   }
 
   text {
     fill: var(--muted);
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 9px;
-    letter-spacing: 0.1em;
+    font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+    font-size: 12px;
+    letter-spacing: 0.025em;
+  }
+
+  .frame path {
+    stroke: var(--muted);
+    stroke-width: 0.65;
+    opacity: 0.4;
   }
 
   @media (max-width: 600px) {
     .minima-landscape {
-      max-width: 240px;
+      max-width: 290px;
       justify-self: center;
     }
   }

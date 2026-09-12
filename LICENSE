@@ -2,10 +2,10 @@
 
 This repository contains two types of content with different licenses:
 
-## Documentation and Blog Posts
+## Documentation and Writing
 
-All documentation, blog posts, and written content in this repository (primarily in
-`/src/content/essays/` and similar directories) are licensed under the Creative Commons
+All documentation, essays, and written content in this repository (primarily in
+`/src/content/writing/` and similar directories) are licensed under the Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
 
 To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/ or send a
