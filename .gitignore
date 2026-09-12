@@ -26,6 +26,9 @@ pnpm-debug.log*
 # JetBrains settings
 .idea/
 
+# local development and editorial instructions
+/AGENTS.md
+/Personality and Writing Style.md
 Claude.md
 
 .superpowers

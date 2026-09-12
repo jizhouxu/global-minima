@@ -1,23 +1,25 @@
 # License
 
-This repository contains two types of content with different licenses:
+All writing is licensed under CC BY-NC-SA 4.0. Code and code snippets are licensed under MIT.
 
-## Documentation and Writing
+## Writing
 
-All documentation, essays, and written content in this repository (primarily in
-`/src/content/writing/` and similar directories) are licensed under the Creative Commons
+All writing in this repository and on the website, including essays and page text,
+is licensed under the Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
 
-To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/ or send a
-letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+See the [license summary](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+and [full terms](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en).
 
 ### Summary of CC BY-NC-SA 4.0
 
 You are free to:
+
 - **Share** — copy and redistribute the material in any medium or format
 - **Adapt** — remix, transform, and build upon the material
 
 Under the following terms:
+
 - **Attribution** — You must give appropriate credit, provide a link to the license, and indicate
   if changes were made
 - **NonCommercial** — You may not use the material for commercial purposes
@@ -52,5 +54,5 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 ## Clarification
 
 - The website's structure, configuration, and build scripts are considered code (MIT License)
-- Essay content and documentation text are considered documentation (CC BY-NC-SA 4.0)
+- Essays, page text, and other prose are writing (CC BY-NC-SA 4.0)
 - Code examples within essays are dual-licensed and may be used under either license
